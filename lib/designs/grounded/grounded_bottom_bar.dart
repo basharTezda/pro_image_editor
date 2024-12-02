@@ -12,16 +12,16 @@ class GroundedBottomBar extends StatefulWidget {
   ///
   /// Requires the [configs], [done], and [close] parameters, with optional
   /// parameters for undo and redo functionality.
-  const GroundedBottomBar({
-    super.key,
-    required this.configs,
-    this.undo,
-    this.redo,
-    required this.done,
-    required this.close,
-    this.enableUndo = false,
-    this.enableRedo = false,
-  });
+  const GroundedBottomBar(
+      {super.key,
+      required this.configs,
+      this.undo,
+      this.redo,
+      required this.done,
+      required this.close,
+      this.enableUndo = false,
+      this.enableRedo = false,
+      required this.doneText});
 
   /// Configuration settings for the image editor.
   final ProImageEditorConfigs configs;
@@ -44,6 +44,8 @@ class GroundedBottomBar extends StatefulWidget {
   /// Boolean flag to enable or disable the redo action.
   final bool enableRedo;
 
+  final String? doneText;
+
   @override
   State<GroundedBottomBar> createState() => _GroundedBottomBarState();
 }
@@ -60,7 +62,7 @@ class _GroundedBottomBarState extends State<GroundedBottomBar> {
         widget.configs.imageEditorTheme.appBarForegroundColor;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 12),
-      color: const Color(0xFF222222),
+      color:  Colors.black,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -98,14 +100,21 @@ class _GroundedBottomBarState extends State<GroundedBottomBar> {
                 ),
               ],
             ),
-          IconButton(
-            tooltip: widget.configs.i18n.done,
-            onPressed: widget.done,
-            icon: Icon(
-              widget.configs.icons.doneIcon,
-              color: foreGroundColor,
-            ),
-          ),
+          widget.doneText != null
+              ? GestureDetector(
+                  onTap: widget.done,
+                  child: Text(
+                    widget.doneText!,
+                    style: TextStyle(color: Colors.white),
+                  ))
+              : IconButton(
+                  tooltip: widget.configs.i18n.done,
+                  onPressed: widget.done,
+                  icon: Icon(
+                    widget.configs.icons.doneIcon,
+                    color: foreGroundColor,
+                  ),
+                )
         ],
       ),
     );

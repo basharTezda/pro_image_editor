@@ -80,6 +80,7 @@ class _GroundedPaintingBarState extends State<GroundedPaintingBar>
           child: _buildFunctions(constraints),
         ),
         GroundedBottomBar(
+           doneText: null,
           configs: configs,
           undo: widget.editor.undoAction,
           redo: widget.editor.redoAction,

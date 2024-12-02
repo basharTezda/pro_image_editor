@@ -25,8 +25,9 @@ class GroundedMainBar extends StatefulWidget with SimpleConfigsAccess {
     required this.configs,
     required this.callbacks,
     required this.editor,
+    required this.doneText
   });
-
+final String? doneText;
   /// The editor state that holds information about the current editing session.
   final ProImageEditorState editor;
 
@@ -107,6 +108,7 @@ class GroundedMainBarState extends State<GroundedMainBar>
           close: widget.editor.closeEditor,
           enableRedo: widget.editor.canRedo,
           enableUndo: widget.editor.canUndo,
+          doneText: widget.doneText,
         ),
       ],
     );

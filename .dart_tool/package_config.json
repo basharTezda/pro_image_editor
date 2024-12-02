@@ -218,6 +218,12 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "flutter_colorpicker",
+      "rootUri": "file:///Users/basharalbashier/.pub-cache/hosted/pub.dev/flutter_colorpicker-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
       "name": "flutter_image_compress",
       "rootUri": "file:///Users/basharalbashier/.pub-cache/hosted/pub.dev/flutter_image_compress-2.3.0",
       "packageUri": "lib/",
@@ -764,7 +770,7 @@
       "languageVersion": "3.2"
     }
   ],
-  "generated": "2024-11-29T19:58:31.620629Z",
+  "generated": "2024-11-30T18:47:47.988470Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/basharalbashier/Development/flutter",

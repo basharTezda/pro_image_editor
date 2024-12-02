@@ -47,6 +47,7 @@ class _GroundedBlurBarState extends State<GroundedBlurBar>
       children: (constraints) => [
         _buildFunctions(constraints),
         GroundedBottomBar(
+          doneText: null,
           configs: configs,
           done: widget.editor.done,
           close: widget.editor.close,

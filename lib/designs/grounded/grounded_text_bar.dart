@@ -78,6 +78,7 @@ class _GroundedTextBarState extends State<GroundedTextBar>
             child: _buildFunctions(constraints),
           ),
           GroundedBottomBar(
+             doneText: null,
             configs: configs,
             done: widget.editor.done,
             close: widget.editor.close,

@@ -80,6 +80,7 @@ class _GroundedCropRotateBarState extends State<GroundedCropRotateBar>
           child: _buildFunctions(constraints),
         ),
         GroundedBottomBar(
+           doneText: null,
           configs: configs,
           done: widget.editor.done,
           close: widget.editor.close,
