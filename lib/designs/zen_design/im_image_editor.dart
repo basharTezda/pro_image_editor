@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
-// import 'package:example/widgets/demo_build_stickers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -20,18 +20,17 @@ import '../grounded/grounded_text_bar.dart';
 import '../grounded/grounded_text_size_slider.dart';
 import '../grounded/grounded_tune_bar.dart';
 
-// import '../../../example/lib/utils/example_helper.dart';
-
 class ImImageEditor extends StatefulWidget {
   const ImImageEditor(
       {super.key,
       required this.images,
       required this.onDone,
-      required this.doneText});
+      required this.doneText,required this.textEditingController});
 
   final List<String> images;
   final Function(List<String>) onDone;
   final String? doneText;
+    final TextEditingController textEditingController;
   @override
   State<ImImageEditor> createState() => _WhatsAppExampleState();
 }
@@ -91,7 +90,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   @override
   void initState() {
     localImeges = widget.images;
-    // choice = widget.images.first;
+
     _bottomBarScrollCtrl = ScrollController();
     _paintingBottomBarScrollCtrl = ScrollController();
     _cropBottomBarScrollCtrl = ScrollController();
@@ -108,7 +107,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
 
   Map<int, String> paths = {};
   int choice = 0;
-  // final editorKey = GlobalKey<ProImageEditorState>();
+
   BoxConstraints? constraint;
   @override
   Widget build(BuildContext context) {
@@ -130,13 +129,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
           key);
       editors.add(item);
     }
-    // if (editors.isEmpty) {
-
-    //   setState(() {
-
-    //   });
-    //   return Container();
-    // }
 
     return Stack(
       children: [
@@ -145,13 +137,12 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
             top: 50,
             child: IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: Icon(
+                icon: const Icon(
                   Icons.close,
                   color: Colors.white,
                 )))
       ],
     );
-    // return ;
   }
 
   ProImageEditor edittor(String path, BoxConstraints constraints, int index,
@@ -160,14 +151,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       File(path),
       key: key,
       callbacks: ProImageEditorCallbacks(
-        // onThumbnailGenerated: (byt, image) async => print("thumb"),
-        // // return (byt,ima,
-        // // onCloseEditor: (){
-        // //   print("close");
-        // // },
-        // onImageEditingStarted: () => print("start"),
         onImageEditingComplete: (byt) => _onEditingDone(byt),
-        // onCloseEditor: onCloseEditor,
       ),
       configs: ProImageEditorConfigs(
         designMode: platformDesignMode,
@@ -355,11 +339,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
             },
           ),
         ),
-
-        // textEditorConfigs: TextEditorConfigs(
-        //   showSelectFontStyleBottomBar: true,
-        //   customTextStyles: _customTextStyles,
-        // ),
       ),
     );
   }
@@ -369,12 +348,12 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   Widget _bottomNavigationBar(ProImageEditorState editor, Key key,
       BoxConstraints constraints, int index) {
     return Scrollbar(
-      /// Key is important for correct layer calculations
       key: key,
       controller: _bottomBarScrollCtrl,
       scrollbarOrientation: ScrollbarOrientation.top,
       thickness: isDesktop ? null : 0,
       child: BottomAppBar(
+        notchMargin: 1,
         height:
             kBottomNavigationBarHeight + (localImeges.length > 1 ? 100 : 50),
         color: Colors.black,
@@ -396,13 +375,11 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       for (var i in editors)
-                        //  if(choice!=i)
                         GestureDetector(
                           onTap: () async {
-                            // print();
                             await _preCache(i.index);
                             setState(() {
-                              choice =i.index;
+                              choice = i.index;
                             });
                           },
                           child: Padding(
@@ -414,21 +391,20 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                                 fit: StackFit.expand,
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.all(1), // Border width
+                                    padding: const EdgeInsets.all(1),
                                     decoration: BoxDecoration(
-                                        color:
-                                           i.index == choice ? Colors.white : null,
+                                        color: i.index == choice
+                                            ? Colors.white
+                                            : null,
                                         borderRadius:
                                             BorderRadius.circular(5.0)),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(5.0),
                                       child: SizedBox.fromSize(
-                                        size:
-                                            Size.fromRadius(32), // Image radius
+                                        size: const Size.fromRadius(32),
                                         child: Image(
                                             fit: BoxFit.cover,
-                                            image: FileImage(
-                                                File(i.path))),
+                                            image: FileImage(File(i.path))),
                                       ),
                                     ),
                                   ),
@@ -436,11 +412,8 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                                       top: 0,
                                       right: 0,
                                       child: GestureDetector(
-                                          onTap: () {
-                                            // localImeges.removeAt(i.index);
-                                            // setState(() {});
-                                          },
-                                          child: Icon(
+                                          onTap: () {},
+                                          child: const Icon(
                                             Icons.cancel,
                                             color: Colors.white,
                                             size: 10,
@@ -462,261 +435,193 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                   minWidth: min(constraints.maxWidth, 500),
                   maxWidth: 500,
                 ),
-                child: Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    FlatIconTextButton(
-                      label: Text('Paint', style: _bottomTextStyle),
-                      icon: Icon(
-                        Icons.edit_outlined,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
-                      onPressed: editor.openPaintingEditor,
-                    ),
-                    // FlatIconTextButton(
-                    //   label: Text('Text', style: _bottomTextStyle),
-                    //   icon: Icon(
-                    //     Icons.text_fields,
-                    //     size: iconSize,
-                    //     color: Colors.white,
-                    //   ),
-                    //   onPressed: editor.openTextEditor,
-                    // ),
-                    // FlatIconTextButton(
-                    //   label: Text('My Button',
-                    //       style:
-                    //           _bottomTextStyle.copyWith(color: Colors.amber)),
-                    //   icon: const Icon(
-                    //     Icons.new_releases_outlined,
-                    //     size: 22.0,
-                    //     color: Colors.amber,
-                    //   ),
-                    //   onPressed: () {},
-                    // ),
-                    FlatIconTextButton(
-                      label: Text('Crop/ Rotate', style: _bottomTextStyle),
-                      icon: Icon(
-                        Icons.crop_rotate_rounded,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
-                      onPressed: editor.openCropRotateEditor,
-                    ),
-                    FlatIconTextButton(
-                      label: Text('i18n.tuneEditor.bottomNavigationBarText',
-                          style: _bottomTextStyle),
-                      icon: Icon(
-                        Icons.tune,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
-                      onPressed: editor.openTuneEditor,
-                    ),
-                    FlatIconTextButton(
-                      label: Text('Filter', style: _bottomTextStyle),
-                      icon: Icon(
-                        Icons.filter,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
-                      onPressed: editor.openFilterEditor,
-                    ),
-                    FlatIconTextButton(
-                      label: Text('Emoji', style: _bottomTextStyle),
-                      icon: Icon(
-                        Icons.sentiment_satisfied_alt_rounded,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
-                      onPressed: editor.openEmojiEditor,
-                    ),
-                    FlatIconTextButton(
-                      spacing: 7,
-                      label: Text('_', style: _bottomTextStyle),
-                      icon: Icon(
-                        Icons.blur_linear_sharp,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
-                      onPressed: editor.openBlurEditor,
-                    ),
-                    /* Be careful with the sticker editor. It's important you 
-                    add your own logic how to load items in 
-                    `stickerEditorConfigs`.
-                      FlatIconTextButton(
-                        key: const ValueKey('open-sticker-editor-btn'),
-                        label: Text('Sticker', style: bottomTextStyle),
-                        icon: const Icon(
-                          Icons.layers_outlined,
-                          size: 22.0,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      GestureDetector(
+                        onTap: editor.openPaintingEditor,
+                        child: Icon(
+                          Icons.edit_outlined,
+                          size: iconSize,
                           color: Colors.white,
                         ),
-                        onPressed: editor.openStickerEditor,
-                      ), */
-                  ],
+                      ),
+                      GestureDetector(
+                        onTap: editor.openTextEditor,
+                        child: Icon(
+                          Icons.text_fields_rounded,
+                          size: iconSize,
+                          color: Colors.white,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: editor.openCropRotateEditor,
+                        child: Icon(
+                          Icons.crop_rotate_rounded,
+                          size: iconSize,
+                          color: Colors.white,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: editor.openTuneEditor,
+                        child: Icon(
+                          Icons.tune,
+                          size: iconSize,
+                          color: Colors.white,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: editor.openFilterEditor,
+                        child: Icon(
+                          Icons.filter,
+                          size: iconSize,
+                          color: Colors.white,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: editor.openBlurEditor,
+                        child: Icon(
+                          Icons.lens_blur_sharp,
+                          size: iconSize,
+                          color: Colors.white,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: editor.openEmojiEditor,
+                        child: Icon(
+                          Icons.sentiment_satisfied_alt_rounded,
+                          size: iconSize,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
             SizedBox(
+              width: MediaQuery.of(context).size.width,
               height: 36,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                // height: 50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(Icons.image),
-                    SizedBox(
-                      width: 6,
-                    ),
-                    Stack(
-                      // alignment: Alignment.bottomRight,
-                      children: [
-                        Container(
-                          width: 313,
-                          // width:
-                          //     MediaQuery.sizeOf(context).width /
-                          //         1.33,
-                          // height: 100,
-                          color: Colors.transparent,
-
-                          child: TextFormField(
-                            // controller: widget.controller,
-                            keyboardType: TextInputType.multiline,
-                            textCapitalization: TextCapitalization.sentences,
-                            autocorrect: true,
-                            minLines: 1,
-                            maxLines: 10,
-                            cursorHeight: 16.0,
-                            cursorWidth: 2.0,
-
-                            style: const TextStyle(
-                                fontSize: 14.0,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500),
-                            // expands: true,
-                            // cursorColor: AppColors.black.withOpacity(0.6),
-                            onChanged: (text) {
-                              // message.text=widget.controller.text;
-                              //  widget.controller.text=text;
-                              // _calculateTextLinesByCharacterCountWithSpaces(
-                              //     text);
-                            },
-
-                            decoration: InputDecoration(
-                              suffixIcon: Icon(Icons.emoji_emotions_outlined),
-                              hintText: 'Send message',
-                              hintStyle: const TextStyle(
-                                  color: Colors.white, fontSize: 14),
-                              contentPadding: const EdgeInsets.only(
-                                top: 0,
-                                bottom: 0,
-                                left: 12.0,
-                                right: 38.0,
-                              ),
-                              constraints: BoxConstraints(
-                                  // minHeight: 20,
-                                  // maxHeight: calculatedHeight,
-                                  // maxHeight: _previousHeight,
-                                  ),
-                              filled: true,
-                              fillColor: Colors.grey.withOpacity(0.1),
-                              labelStyle: const TextStyle(color: Colors.black),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  // style: BorderStyle.none,
-                                ),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12.0)),
-                                // borderSide: BorderSide.none
-                              ),
-                              focusedBorder: const OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12.0)),
-                                borderSide: BorderSide.none,
-                              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  const Icon(CupertinoIcons.photo),
+                  Expanded(
+                    // width: 313,
+                    // color: Colors.transparent,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8),
+                      child: TextFormField(
+                        controller: widget.textEditingController,
+                        keyboardType: TextInputType.multiline,
+                        textCapitalization: TextCapitalization.sentences,
+                        autocorrect: true,
+                        minLines: 1,
+                        maxLines: 10,
+                        cursorHeight: 16.0,
+                        cursorWidth: 2.0,
+                        style: const TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500),
+                        onChanged: (text) {},
+                        decoration: InputDecoration(
+                          suffixIcon: const Icon(
+                            Icons.sentiment_satisfied_alt_rounded,
+                            color: Colors.white,
+                          ),
+                          hintText: 'Send message',
+                          hintStyle: const TextStyle(
+                              color: Colors.white, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 0,
+                            left: 12.0,
+                            right: 38.0,
+                          ),
+                          constraints: const BoxConstraints(),
+                          filled: true,
+                          fillColor: Colors.grey.withOpacity(0.1),
+                          labelStyle: const TextStyle(color: Colors.black),
+                          enabledBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.grey,
                             ),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12.0)),
+                          ),
+                          focusedBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12.0)),
+                            borderSide: BorderSide.none,
                           ),
                         ),
-                        // Positioned(
-                        //   right: 8,
-                        //   bottom: 5.0,
-                        //   child: InkWell(
-                        //     onTap: () {},
-                        //     child: Container(
-                        //       width: 22.0,
-                        //       height: 22.0,
-                        //       alignment: Alignment.center,
-                        //       child: Icon(Icons.emoji_emotions_outlined),
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-
-                    // const SizedBox(
-                    //   width: 27,
-                    // ),
-                    Container(
-                      width: 36,
-                      height: 36,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: CircleAvatar(
-                              radius: 16,
-                              backgroundColor: Colors.amber,
-                              child: IconButton(
-                                iconSize: 20,
-                                onPressed: () async {
-                                  List<String> list = [];
-                                  for (ImageItem i in editors) {
-                                    String? path = paths[i.index];
-                                    // if (path == null) {
-                                    final directory =
-                                        await getApplicationDocumentsDirectory();
-                                    var file = File(
-                                        '${directory.path}/image_${DateTime.now()}.webp');
-                                    var img = i.key.currentState != null
-                                        ? await i.key.currentState!
-                                            .captureEditorImage()
-                                        : File(i.path).readAsBytesSync();
-                                    var result = await FlutterImageCompress
-                                        .compressWithList(
-                                      img,
-                                      minHeight: 1920,
-                                      minWidth: 1080,
-                                      quality: Platform.isIOS ? 1 : 50,
-                                    );
-                                    file.writeAsBytesSync(result);
-                                    path = file.path;
-                                    // }
-                                    // paths[i.index] = file.path;
-                                    list.add(path);
-                                  }
-                                  widget.onDone.call(list);
-                                  Navigator.pop(context);
-                                  print("object");
-                                  // _onEditingDone();
-                                },
-                                icon: const Icon(Icons.send),
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Container(
+                    width: 36,
+                    height: 36,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.amber,
+                            child: IconButton(
+                              iconSize: 20,
+                              onPressed: () async {
+                                List<String> list = [];
+                                for (ImageItem i in editors) {
+                                  String? path = paths[i.index];
+
+                                  final directory =
+                                      await getApplicationDocumentsDirectory();
+                                  var file = File(
+                                      '${directory.path}/image_${DateTime.now()}.webp');
+                                  var img = i.key.currentState != null
+                                      ? await i.key.currentState!
+                                          .captureEditorImage()
+                                      : File(i.path).readAsBytesSync();
+                                  var result = await FlutterImageCompress
+                                      .compressWithList(
+                                    img,
+                                    minHeight: 1920,
+                                    minWidth: 1080,
+                                    quality: Platform.isIOS ? 1 : 50,
+                                  );
+                                  file.writeAsBytesSync(result);
+                                  path = file.path;
+
+                                  list.add(path);
+                                }
+                                widget.onDone.call(list);
+                                Navigator.pop(context);
+                                print("object");
+                              },
+                              icon: const Icon(Icons.send),
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
               ),
             ),
           ],
@@ -739,9 +644,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
 
     widget.onDone.call([]);
     Navigator.pop(context);
-    // print("fuck");
-
-    //
   }
 
   Future<void> _preCache(int i) async {
@@ -755,7 +657,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     }
     file.writeAsBytesSync(img);
     paths[editors[choice].index] = file.path;
-    print(editors[choice].path);
   }
 }
 
