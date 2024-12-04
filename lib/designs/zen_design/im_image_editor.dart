@@ -8,6 +8,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 
@@ -25,12 +26,13 @@ class ImImageEditor extends StatefulWidget {
       {super.key,
       required this.images,
       required this.onDone,
-      required this.doneText,required this.textEditingController});
+      required this.doneText,
+      required this.textEditingController});
 
   final List<String> images;
   final Function(List<String>) onDone;
   final String? doneText;
-    final TextEditingController textEditingController;
+  final TextEditingController textEditingController;
   @override
   State<ImImageEditor> createState() => _WhatsAppExampleState();
 }
@@ -344,7 +346,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   }
 
   Color color = Colors.red;
-  double iconSize = 15;
+  double iconSize = 18;
   Widget _bottomNavigationBar(ProImageEditorState editor, Key key,
       BoxConstraints constraints, int index) {
     return Scrollbar(
@@ -382,44 +384,55 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                               choice = i.index;
                             });
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: SizedBox(
-                              width: 50,
-                              height: 50,
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(1),
-                                    decoration: BoxDecoration(
-                                        color: i.index == choice
-                                            ? Colors.white
-                                            : null,
+                          child: SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: SizedBox(
+                                    width: 50,
+                                    height: 50,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(1),
+                                      decoration: BoxDecoration(
+                                          color: i.index == choice
+                                              ? Colors.white
+                                              : null,
+                                          borderRadius:
+                                              BorderRadius.circular(5.0)),
+                                      child: ClipRRect(
                                         borderRadius:
-                                            BorderRadius.circular(5.0)),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      child: SizedBox.fromSize(
-                                        size: const Size.fromRadius(32),
-                                        child: Image(
-                                            fit: BoxFit.cover,
-                                            image: FileImage(File(i.path))),
+                                            BorderRadius.circular(5.0),
+                                        child: SizedBox.fromSize(
+                                          size: const Size.fromRadius(32),
+                                          child: Image(
+                                              fit: BoxFit.cover,
+                                              image: FileImage(File(i.path))),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                  Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: GestureDetector(
-                                          onTap: () {},
-                                          child: const Icon(
-                                            Icons.cancel,
-                                            color: Colors.white,
-                                            size: 10,
-                                          )))
-                                ],
-                              ),
+                                ),
+                                Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: GestureDetector(
+                                        onTap: () {},
+                                        child: const CircleAvatar(
+                                          radius: 7.5,
+                                          backgroundColor: Colors.black,
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.cancel,
+                                              color: Colors.white,
+                                              size: 15,
+                                            ),
+                                          ),
+                                        )))
+                              ],
                             ),
                           ),
                         )
@@ -511,7 +524,18 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                   const SizedBox(
                     width: 10,
                   ),
-                  const Icon(CupertinoIcons.photo),
+                  GestureDetector(
+                      onTap: () async {
+                        final List<XFile> images =
+                            await ImagePicker().pickMultiImage();
+                        if (images.isNotEmpty) {
+                          for (var i in images) {
+                            localImeges.add(i.path);
+                          }
+                          setState(() {});
+                        }
+                      },
+                      child: const Icon(CupertinoIcons.photo)),
                   Expanded(
                     // width: 313,
                     // color: Colors.transparent,
@@ -551,6 +575,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                           labelStyle: const TextStyle(color: Colors.black),
                           enabledBorder: const OutlineInputBorder(
                             borderSide: BorderSide(
+                              width: .5,
                               color: Colors.grey,
                             ),
                             borderRadius:
