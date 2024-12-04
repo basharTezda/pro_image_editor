@@ -20,14 +20,14 @@ class GroundedMainBar extends StatefulWidget with SimpleConfigsAccess {
   ///
   /// Requires [configs], [callbacks], and [editor] to manage the state of the
   /// image editor.
-  const GroundedMainBar({
-    super.key,
-    required this.configs,
-    required this.callbacks,
-    required this.editor,
-    required this.doneText
-  });
-final String? doneText;
+  const GroundedMainBar(
+      {super.key,
+      required this.configs,
+      required this.callbacks,
+      required this.editor,
+      required this.doneText});
+  final String? doneText;
+
   /// The editor state that holds information about the current editing session.
   final ProImageEditorState editor;
 
@@ -116,6 +116,8 @@ class GroundedMainBarState extends State<GroundedMainBar>
 
   Widget _buildFunctions(BoxConstraints constraints) {
     return BottomAppBar(
+      elevation: 1,
+      notchMargin: 0.1,
       height: GROUNDED_SUB_BAR_HEIGHT,
       color: imageEditorTheme.bottomBarBackgroundColor,
       padding: EdgeInsets.zero,
@@ -152,40 +154,45 @@ class GroundedMainBarState extends State<GroundedMainBar>
                   clipBehavior: Clip.none,
                   controller: _bottomBarScrollCtrl,
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: min(constraints.maxWidth, 600),
-                      maxWidth: 600,
-                    ),
+                  // padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                  child: Container(
+                    color: Colors.teal,
+                    // width: MediaQuery.of(context).size.width,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         if (paintEditorConfigs.enabled)
-                          FlatIconTextButton(
-                            spacing: 7,
-                            label: Text(
-                                i18n.paintEditor.bottomNavigationBarText,
-                                style: _bottomTextStyle),
-                            icon: Icon(
-                              icons.paintingEditor.bottomNavBar,
-                              size: _bottomIconSize,
-                              color: _foreGroundColor,
+                          Container(
+                            color: Colors.amber,
+                            child: FlatIconTextButton(
+                              spacing: 7,
+                              label: Text(
+                                  i18n.paintEditor.bottomNavigationBarText,
+                                  style: _bottomTextStyle),
+                              icon: Icon(
+                                icons.paintingEditor.bottomNavBar,
+                                size: _bottomIconSize,
+                                color: _foreGroundColor,
+                              ),
+                              onPressed: widget.editor.openPaintingEditor,
                             ),
-                            onPressed: widget.editor.openPaintingEditor,
                           ),
                         if (textEditorConfigs.enabled)
-                          FlatIconTextButton(
-                            spacing: 7,
-                            label: Text(i18n.textEditor.bottomNavigationBarText,
-                                style: _bottomTextStyle),
-                            icon: Icon(
-                              icons.textEditor.bottomNavBar,
-                              size: _bottomIconSize,
-                              color: _foreGroundColor,
+                          Container(
+                            color: Colors.pink,
+                            child: FlatIconTextButton(
+                              spacing: 7,
+                              label: Text(
+                                  i18n.textEditor.bottomNavigationBarText,
+                                  style: _bottomTextStyle),
+                              icon: Icon(
+                                icons.textEditor.bottomNavBar,
+                                size: _bottomIconSize,
+                                color: _foreGroundColor,
+                              ),
+                              onPressed: widget.editor.openTextEditor,
                             ),
-                            onPressed: widget.editor.openTextEditor,
                           ),
                         if (cropRotateEditorConfigs.enabled)
                           FlatIconTextButton(
@@ -250,19 +257,19 @@ class GroundedMainBarState extends State<GroundedMainBar>
                             ),
                             onPressed: _openEmojiEditor,
                           ),
-                        if (stickerEditorConfigs?.enabled == true)
-                          FlatIconTextButton(
-                            spacing: 7,
-                            label: Text(
-                                i18n.stickerEditor.bottomNavigationBarText,
-                                style: _bottomTextStyle),
-                            icon: Icon(
-                              icons.stickerEditor.bottomNavBar,
-                              size: _bottomIconSize,
-                              color: _foreGroundColor,
-                            ),
-                            onPressed: _openStickerEditor,
-                          ),
+                        // if (stickerEditorConfigs?.enabled == true)
+                        //   FlatIconTextButton(
+                        //     spacing: 7,
+                        //     label: Text(
+                        //         i18n.stickerEditor.bottomNavigationBarText,
+                        //         style: _bottomTextStyle),
+                        //     icon: Icon(
+                        //       icons.stickerEditor.bottomNavBar,
+                        //       size: _bottomIconSize,
+                        //       color: _foreGroundColor,
+                        //     ),
+                        //     onPressed: _openStickerEditor,
+                        //   ),
                       ],
                     ),
                   ),
