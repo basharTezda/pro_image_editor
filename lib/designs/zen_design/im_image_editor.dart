@@ -1,3 +1,4 @@
+import 'dart:developer' as l;
 import 'dart:io';
 import 'dart:math';
 
@@ -6,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,17 +22,21 @@ import '../grounded/grounded_text_size_slider.dart';
 import '../grounded/grounded_tune_bar.dart';
 
 class ImImageEditor extends StatefulWidget {
-  const ImImageEditor(
+  ImImageEditor(
       {super.key,
       required this.images,
       required this.onDone,
       required this.doneText,
-      required this.textEditingController});
+      required this.textEditingController,
+      this.textEditingText = 'Write comment',
+      this.forCommentsUse = false});
 
   final List<String> images;
   final Function(List<String>) onDone;
   final String? doneText;
   final TextEditingController textEditingController;
+  String textEditingText;
+  bool forCommentsUse;
   @override
   State<ImImageEditor> createState() => _WhatsAppExampleState();
 }
@@ -52,7 +56,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     GoogleFonts.nabla(),
   ];
 
-  final _bottomTextStyle = const TextStyle(fontSize: 10.0, color: Colors.white);
   final List<PaintModeBottomBarItem> paintModes = [
     const PaintModeBottomBarItem(
       mode: PaintModeE.freeStyle,
@@ -86,19 +89,24 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     ),
   ];
 
-  final _layerInteractionButtonRadius = 10.0;
   List<ImageItem> editors = [];
   List<String> localImeges = [];
   @override
   void initState() {
     localImeges = widget.images;
-
+    for (int i = 0; i < localImeges.length; i++) {
+      keys.add(GlobalKey<ProImageEditorState>());
+      // if (paths[i] == null) {
+      _preCache(i);
+      // }
+    }
     _bottomBarScrollCtrl = ScrollController();
     _paintingBottomBarScrollCtrl = ScrollController();
     _cropBottomBarScrollCtrl = ScrollController();
     super.initState();
   }
 
+  List<GlobalKey<ProImageEditorState>> keys = [];
   @override
   void dispose() {
     _bottomBarScrollCtrl.dispose();
@@ -118,17 +126,19 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       if (paths[i] == null) {
         _preCache(i);
       }
-      var key = GlobalKey<ProImageEditorState>();
+
       ImageItem item = ImageItem(
           paths[i] ?? localImeges[i],
           i,
           Visibility(
             visible: choice == i,
             child: LayoutBuilder(builder: (context, constraints) {
-              return edittor(paths[i] ?? localImeges[i], constraints, i, key);
+              return edittor(
+                  paths[i] ?? localImeges[i], constraints, i, keys[i]);
             }),
           ),
-          key);
+          keys[i],
+          paths[i]);
       editors.add(item);
     }
 
@@ -167,7 +177,8 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
             bottomBar: (editor, rebuildStream, key) => ReactiveCustomWidget(
               key: key,
               builder: (context) {
-                return _bottomNavigationBar(editor, key, constraints, index);
+                return _bottomNavigationBar(
+                    editor, key, constraints, index, path);
               },
               stream: rebuildStream,
             ),
@@ -244,7 +255,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                             ),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: const Text('Got it'),
+                                child: const Text('OK'),
                                 onPressed: () {
                                   if (newColor != null) {
                                     setState(() =>
@@ -344,11 +355,18 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       ),
     );
   }
+  void _scrollToItem(int index) {
+    final offset = index * 60.0;
+    _bottomBarScrollCtrl.animateTo(
+      offset,
+      duration: Duration(seconds: 1),
+      curve: Curves.easeInOut,
+    );
+  }
 
-  Color color = Colors.red;
   double iconSize = 18;
   Widget _bottomNavigationBar(ProImageEditorState editor, Key key,
-      BoxConstraints constraints, int index) {
+      BoxConstraints constraints, int index, String path) {
     return Scrollbar(
       key: key,
       controller: _bottomBarScrollCtrl,
@@ -367,77 +385,87 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
               SingleChildScrollView(
                 controller: _bottomBarScrollCtrl,
                 scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: min(constraints.maxWidth, 500),
-                    maxWidth: 500,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      for (var i in editors)
-                        GestureDetector(
-                          onTap: () async {
-                            await _preCache(i.index);
-                            setState(() {
-                              choice = i.index;
-                            });
-                          },
-                          child: SizedBox(
-                            width: 60,
-                            height: 60,
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: SizedBox(
-                                    width: 50,
-                                    height: 50,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(1),
-                                      decoration: BoxDecoration(
-                                          color: i.index == choice
-                                              ? Colors.white
-                                              : null,
-                                          borderRadius:
-                                              BorderRadius.circular(5.0)),
-                                      child: ClipRRect(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    for (var i in editors)
+                      GestureDetector(
+                        onTap: () async {
+                          
+                          await _preCache(i.index);
+                          setState(() {
+                            choice = i.index;
+                          });
+                          // _scrollToItem(choice); 
+                        },
+                        child: SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: SizedBox(
+                                  width: 50,
+                                  height: 50,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                        color: i.index == choice
+                                            ? Colors.white
+                                            : null,
                                         borderRadius:
-                                            BorderRadius.circular(5.0),
-                                        child: SizedBox.fromSize(
-                                          size: const Size.fromRadius(32),
-                                          child: Image(
-                                              fit: BoxFit.cover,
-                                              image: FileImage(File(i.path))),
-                                        ),
+                                            BorderRadius.circular(5.0)),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                      child: SizedBox.fromSize(
+                                        size: const Size.fromRadius(32),
+                                        child: Image(
+                                            fit: BoxFit.cover,
+                                            image: FileImage(File(i.path))),
                                       ),
                                     ),
                                   ),
                                 ),
-                                Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: GestureDetector(
-                                        onTap: () {},
-                                        child: const CircleAvatar(
-                                          radius: 7.5,
-                                          backgroundColor: Colors.black,
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.cancel,
-                                              color: Colors.white,
-                                              size: 15,
-                                            ),
+                              ),
+                              Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                      onTap: () => setState(() {
+                                            var imageItem = editors
+                                                .map((toElement) => toElement)
+                                                .toList()
+                                                .where((test) =>
+                                                    test.index == index);
+                                            localImeges.removeAt(
+                                                imageItem.first.index);
+                                            editors.removeWhere(
+                                                (test) => test.index == index);
+                                            // l.log(
+                                            //     imageItem.toString() +
+                                            //         "====" +
+                                            //         path,
+                                            //     name: "dododo");
+                                          }),
+                                      child: const CircleAvatar(
+                                        radius: 7.5,
+                                        backgroundColor: Colors.black,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.cancel,
+                                            color: Colors.white,
+                                            size: 15,
                                           ),
-                                        )))
-                              ],
-                            ),
+                                        ),
+                                      )))
+                            ],
                           ),
-                        )
-                    ],
-                  ),
+                        ),
+                      )
+                  ],
                 ),
               ),
             SingleChildScrollView(
@@ -526,12 +554,20 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                   ),
                   GestureDetector(
                       onTap: () async {
+                         for (int i = 0; i < localImeges.length; i++) {
+                          if (paths[i] == null) {
+                            await _preCache(i);
+                          }
+                        }
                         final List<XFile> images =
                             await ImagePicker().pickMultiImage();
+                       
                         if (images.isNotEmpty) {
                           for (var i in images) {
+                            keys.add(GlobalKey<ProImageEditorState>());
                             localImeges.add(i.path);
                           }
+                          l.log(localImeges.length.toString());
                           setState(() {});
                         }
                       },
@@ -560,7 +596,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                             Icons.sentiment_satisfied_alt_rounded,
                             color: Colors.white,
                           ),
-                          hintText: 'Send message',
+                          hintText: widget.textEditingText,
                           hintStyle: const TextStyle(
                               color: Colors.white, fontSize: 14),
                           contentPadding: const EdgeInsets.only(
@@ -686,12 +722,8 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
 }
 
 class ImageItem {
-  ImageItem(
-    this.path,
-    this.index,
-    this.editor,
-    this.key,
-  );
+  ImageItem(this.path, this.index, this.editor, this.key, this.editedPath);
+  final String? editedPath;
   final String path;
   final int index;
   final Widget editor;
