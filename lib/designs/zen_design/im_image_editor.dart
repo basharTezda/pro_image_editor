@@ -9,6 +9,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 
@@ -45,16 +46,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   late ScrollController _bottomBarScrollCtrl;
   late ScrollController _paintingBottomBarScrollCtrl;
   late ScrollController _cropBottomBarScrollCtrl;
-
-  final List<TextStyle> _customTextStyles = [
-    GoogleFonts.roboto(),
-    GoogleFonts.averiaLibre(),
-    GoogleFonts.lato(),
-    GoogleFonts.comicNeue(),
-    GoogleFonts.actor(),
-    GoogleFonts.odorMeanChey(),
-    GoogleFonts.nabla(),
-  ];
 
   final List<PaintModeBottomBarItem> paintModes = [
     const PaintModeBottomBarItem(
@@ -93,11 +84,16 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   List<String> localImeges = [];
   @override
   void initState() {
-    localImeges = widget.images;
+    for (String i in widget.images) {
+      if (lookupMimeType(i)![0] == 'i') {
+        localImeges.add(i);
+      }
+    }
     for (int i = 0; i < localImeges.length; i++) {
       keys.add(GlobalKey<ProImageEditorState>());
       // if (paths[i] == null) {
-      _preCache(i);
+      preCache(i);
+      _preCache();
       // }
     }
     _bottomBarScrollCtrl = ScrollController();
@@ -124,9 +120,9 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     editors.clear();
     for (int i = 0; i < localImeges.length; i++) {
       if (paths[i] == null) {
-        _preCache(i);
+        preCache(i);
+         _preCache();
       }
-
       ImageItem item = ImageItem(
           paths[i] ?? localImeges[i],
           i,
@@ -141,7 +137,9 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
           paths[i]);
       editors.add(item);
     }
-
+    if (localImeges.isEmpty) {
+      Navigator.of(context).pop();
+    }
     return Stack(
       children: [
         for (ImageItem i in editors) i.editor,
@@ -158,10 +156,10 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   }
 
   ProImageEditor edittor(String path, BoxConstraints constraints, int index,
-      GlobalKey<ProImageEditorState> key) {
+      GlobalKey<ProImageEditorState> key2) {
     return ProImageEditor.file(
       File(path),
-      key: key,
+      key: key2,
       callbacks: ProImageEditorCallbacks(
         onImageEditingComplete: (byt) => _onEditingDone(byt),
       ),
@@ -210,7 +208,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                             ),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: const Text('Got it'),
+                                child: const Text('Ok'),
                                 onPressed: () {
                                   if (newColor != null) {
                                     setState(() =>
@@ -355,6 +353,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       ),
     );
   }
+
   void _scrollToItem(int index) {
     final offset = index * 60.0;
     _bottomBarScrollCtrl.animateTo(
@@ -367,326 +366,317 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   double iconSize = 18;
   Widget _bottomNavigationBar(ProImageEditorState editor, Key key,
       BoxConstraints constraints, int index, String path) {
-    return Scrollbar(
-      key: key,
-      controller: _bottomBarScrollCtrl,
-      scrollbarOrientation: ScrollbarOrientation.top,
-      thickness: isDesktop ? null : 0,
-      child: BottomAppBar(
-        notchMargin: 1,
-        height:
-            kBottomNavigationBarHeight + (localImeges.length > 1 ? 100 : 50),
-        color: Colors.black,
-        padding: EdgeInsets.zero,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            if (localImeges.length > 1)
-              SingleChildScrollView(
-                controller: _bottomBarScrollCtrl,
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    for (var i in editors)
-                      GestureDetector(
-                        onTap: () async {
-                          
-                          await _preCache(i.index);
-                          setState(() {
-                            choice = i.index;
-                          });
-                          // _scrollToItem(choice); 
-                        },
-                        child: SizedBox(
-                          width: 60,
-                          height: 60,
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: SizedBox(
-                                  width: 50,
-                                  height: 50,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                        color: i.index == choice
-                                            ? Colors.white
-                                            : null,
-                                        borderRadius:
-                                            BorderRadius.circular(5.0)),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      child: SizedBox.fromSize(
-                                        size: const Size.fromRadius(32),
-                                        child: Image(
-                                            fit: BoxFit.cover,
-                                            image: FileImage(File(i.path))),
-                                      ),
+    return BottomAppBar(
+      notchMargin: 1,
+      height: kBottomNavigationBarHeight + (localImeges.length > 1 ? 100 : 50),
+      color: Colors.black,
+      padding: EdgeInsets.zero,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (localImeges.length > 1)
+            SingleChildScrollView(
+              controller: _bottomBarScrollCtrl,
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  for (var i in editors)
+                    GestureDetector(
+                      onTap: () async {
+                        await preCache(i.index);
+                         await _preCache( );
+                        setState(() {
+                          choice = i.index;
+                        });
+                        // _scrollToItem(choice);
+                      },
+                      child: SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: SizedBox(
+                                width: 50,
+                                height: 50,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                      color: i.index == choice
+                                          ? Colors.white
+                                          : null,
+                                      borderRadius: BorderRadius.circular(5.0)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                    child: SizedBox.fromSize(
+                                      size: const Size.fromRadius(32),
+                                      child: Image(
+                                          fit: BoxFit.cover,
+                                          image: FileImage(File(i.path))),
                                     ),
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                      onTap: () => setState(() {
-                                            var imageItem = editors
-                                                .map((toElement) => toElement)
-                                                .toList()
-                                                .where((test) =>
-                                                    test.index == index);
-                                            localImeges.removeAt(
-                                                imageItem.first.index);
-                                            editors.removeWhere(
-                                                (test) => test.index == index);
-                                            // l.log(
-                                            //     imageItem.toString() +
-                                            //         "====" +
-                                            //         path,
-                                            //     name: "dododo");
-                                          }),
-                                      child: const CircleAvatar(
-                                        radius: 7.5,
-                                        backgroundColor: Colors.black,
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.cancel,
-                                            color: Colors.white,
-                                            size: 15,
-                                          ),
+                            ),
+                            Positioned(
+                                top: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                    onTap: () => setState(() {
+                                          // var imageItem = editors
+                                          //     .map((toElement) => toElement)
+                                          //     .toList()
+                                          //     .where((test) =>
+                                          //         test.index == index);
+                                          // localImeges
+                                          //     .removeAt(imageItem.first.index);
+                                          // editors.removeWhere(
+                                          //     (test) => test.index == index);
+                                          // l.log(
+                                          //     imageItem.toString() +
+                                          //         "====" +
+                                          //         path,
+                                          //     name: "dododo");
+                                        }),
+                                    child: const CircleAvatar(
+                                      radius: 7.5,
+                                      backgroundColor: Colors.black,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.cancel,
+                                          color: Colors.white,
+                                          size: 15,
                                         ),
-                                      )))
-                            ],
-                          ),
-                        ),
-                      )
-                  ],
-                ),
-              ),
-            SingleChildScrollView(
-              controller: _bottomBarScrollCtrl,
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: min(constraints.maxWidth, 500),
-                  maxWidth: 500,
-                ),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: editor.openPaintingEditor,
-                        child: Icon(
-                          Icons.edit_outlined,
-                          size: iconSize,
-                          color: Colors.white,
+                                      ),
+                                    )))
+                          ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: editor.openTextEditor,
-                        child: Icon(
-                          Icons.text_fields_rounded,
-                          size: iconSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: editor.openCropRotateEditor,
-                        child: Icon(
-                          Icons.crop_rotate_rounded,
-                          size: iconSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: editor.openTuneEditor,
-                        child: Icon(
-                          Icons.tune,
-                          size: iconSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: editor.openFilterEditor,
-                        child: Icon(
-                          Icons.filter,
-                          size: iconSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: editor.openBlurEditor,
-                        child: Icon(
-                          Icons.lens_blur_sharp,
-                          size: iconSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: editor.openEmojiEditor,
-                        child: Icon(
-                          Icons.sentiment_satisfied_alt_rounded,
-                          size: iconSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 36,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  GestureDetector(
-                      onTap: () async {
-                         for (int i = 0; i < localImeges.length; i++) {
-                          if (paths[i] == null) {
-                            await _preCache(i);
-                          }
-                        }
-                        final List<XFile> images =
-                            await ImagePicker().pickMultiImage();
-                       
-                        if (images.isNotEmpty) {
-                          for (var i in images) {
-                            keys.add(GlobalKey<ProImageEditorState>());
-                            localImeges.add(i.path);
-                          }
-                          l.log(localImeges.length.toString());
-                          setState(() {});
-                        }
-                      },
-                      child: const Icon(CupertinoIcons.photo)),
-                  Expanded(
-                    // width: 313,
-                    // color: Colors.transparent,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8),
-                      child: TextFormField(
-                        controller: widget.textEditingController,
-                        keyboardType: TextInputType.multiline,
-                        textCapitalization: TextCapitalization.sentences,
-                        autocorrect: true,
-                        minLines: 1,
-                        maxLines: 10,
-                        cursorHeight: 16.0,
-                        cursorWidth: 2.0,
-                        style: const TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500),
-                        onChanged: (text) {},
-                        decoration: InputDecoration(
-                          suffixIcon: const Icon(
-                            Icons.sentiment_satisfied_alt_rounded,
-                            color: Colors.white,
-                          ),
-                          hintText: widget.textEditingText,
-                          hintStyle: const TextStyle(
-                              color: Colors.white, fontSize: 14),
-                          contentPadding: const EdgeInsets.only(
-                            top: 0,
-                            bottom: 0,
-                            left: 12.0,
-                            right: 38.0,
-                          ),
-                          constraints: const BoxConstraints(),
-                          filled: true,
-                          fillColor: Colors.grey.withOpacity(0.1),
-                          labelStyle: const TextStyle(color: Colors.black),
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                              width: .5,
-                              color: Colors.grey,
-                            ),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(12.0)),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(12.0)),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 36,
-                    height: 36,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: const BoxDecoration(),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: CircleAvatar(
-                            radius: 16,
-                            backgroundColor: Colors.amber,
-                            child: IconButton(
-                              iconSize: 20,
-                              onPressed: () async {
-                                List<String> list = [];
-                                for (ImageItem i in editors) {
-                                  String? path = paths[i.index];
-
-                                  final directory =
-                                      await getApplicationDocumentsDirectory();
-                                  var file = File(
-                                      '${directory.path}/image_${DateTime.now()}.webp');
-                                  var img = i.key.currentState != null
-                                      ? await i.key.currentState!
-                                          .captureEditorImage()
-                                      : File(i.path).readAsBytesSync();
-                                  var result = await FlutterImageCompress
-                                      .compressWithList(
-                                    img,
-                                    minHeight: 1920,
-                                    minWidth: 1080,
-                                    quality: Platform.isIOS ? 1 : 50,
-                                  );
-                                  file.writeAsBytesSync(result);
-                                  path = file.path;
-
-                                  list.add(path);
-                                }
-                                widget.onDone.call(list);
-                                Navigator.pop(context);
-                                print("object");
-                              },
-                              icon: const Icon(Icons.send),
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                    )
                 ],
               ),
             ),
-          ],
-        ),
+          SingleChildScrollView(
+            controller: _bottomBarScrollCtrl,
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: min(constraints.maxWidth, 500),
+                maxWidth: 500,
+              ),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: editor.openPaintingEditor,
+                      child: Icon(
+                        Icons.edit_outlined,
+                        size: iconSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: editor.openTextEditor,
+                      child: Icon(
+                        Icons.text_fields_rounded,
+                        size: iconSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: editor.openCropRotateEditor,
+                      child: Icon(
+                        Icons.crop_rotate_rounded,
+                        size: iconSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: editor.openTuneEditor,
+                      child: Icon(
+                        Icons.tune,
+                        size: iconSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: editor.openFilterEditor,
+                      child: Icon(
+                        Icons.filter,
+                        size: iconSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: editor.openBlurEditor,
+                      child: Icon(
+                        Icons.lens_blur_sharp,
+                        size: iconSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: editor.openEmojiEditor,
+                      child: Icon(
+                        Icons.sentiment_satisfied_alt_rounded,
+                        size: iconSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: 36,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                const SizedBox(
+                  width: 10,
+                ),
+                GestureDetector(
+                    onTap: () async {
+                      for (int i = 0; i < localImeges.length; i++) {
+                        if (paths[i] == null) {
+                          await _preCache();
+                         await preCache( i);
+                        }
+                      }
+                      final List<XFile> images =
+                          await ImagePicker().pickMultiImage();
+
+                      if (images.isNotEmpty) {
+                        for (var i in images) {
+                          keys.add(GlobalKey<ProImageEditorState>());
+                          localImeges.add(i.path);
+                        }
+                        l.log(localImeges.length.toString());
+                        setState(() {});
+                      }
+                    },
+                    child: const Icon(CupertinoIcons.photo)),
+                Expanded(
+                  // width: 313,
+                  // color: Colors.transparent,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8),
+                    child: TextFormField(
+                      controller: widget.textEditingController,
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                      autocorrect: true,
+                      minLines: 1,
+                      maxLines: 10,
+                      cursorHeight: 16.0,
+                      cursorWidth: 2.0,
+                      style: const TextStyle(
+                          fontSize: 14.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500),
+                      onChanged: (text) {},
+                      decoration: InputDecoration(
+                        suffixIcon: const Icon(
+                          Icons.sentiment_satisfied_alt_rounded,
+                          color: Colors.white,
+                        ),
+                        hintText: widget.textEditingText,
+                        hintStyle:
+                            const TextStyle(color: Colors.white, fontSize: 14),
+                        contentPadding: const EdgeInsets.only(
+                          top: 0,
+                          bottom: 0,
+                          left: 12.0,
+                          right: 38.0,
+                        ),
+                        constraints: const BoxConstraints(),
+                        filled: true,
+                        fillColor: Colors.grey.withOpacity(0.1),
+                        labelStyle: const TextStyle(color: Colors.black),
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(
+                            width: .5,
+                            color: Colors.grey,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 36,
+                  height: 36,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: const BoxDecoration(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.amber,
+                          child: IconButton(
+                            iconSize: 20,
+                            onPressed: () async {
+                              List<String> list = [];
+                              for (ImageItem i in editors) {
+                                String? path = paths[i.index];
+
+                                final directory =
+                                    await getApplicationDocumentsDirectory();
+                                var file = File(
+                                    '${directory.path}/image_${DateTime.now()}.webp');
+                                var img = i.key.currentState != null
+                                    ? await i.key.currentState!
+                                        .captureEditorImage()
+                                    : File(i.path).readAsBytesSync();
+                                var result =
+                                    await FlutterImageCompress.compressWithList(
+                                  img,
+                                  minHeight: 1920,
+                                  minWidth: 1080,
+                                  quality: Platform.isIOS ? 1 : 50,
+                                );
+                                file.writeAsBytesSync(result);
+                                path = file.path;
+
+                                list.add(path);
+                              }
+                              widget.onDone.call(list);
+                              Navigator.pop(context);
+                              print("object");
+                            },
+                            icon: const Icon(Icons.send),
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -707,7 +697,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     Navigator.pop(context);
   }
 
-  Future<void> _preCache(int i) async {
+  Future<void> _preCache() async {
     final directory = await getApplicationDocumentsDirectory();
     var file = File('${directory.path}/image_${DateTime.now()}.webp');
     Uint8List img;
@@ -718,6 +708,18 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     }
     file.writeAsBytesSync(img);
     paths[editors[choice].index] = file.path;
+  }
+    Future<void> preCache(int i) async {
+    final directory = await getApplicationDocumentsDirectory();
+    var file = File('${directory.path}/image_${DateTime.now()}.webp');
+    Uint8List img;
+    if (editors[i].key.currentState != null) {
+      img = await editors[i].key.currentState!.captureEditorImage();
+    } else {
+      img = File(editors[i].path).readAsBytesSync();
+    }
+    file.writeAsBytesSync(img);
+    paths[editors[i].index] = file.path;
   }
 }
 
