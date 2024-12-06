@@ -9,6 +9,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 
@@ -93,7 +94,11 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   List<String> localImeges = [];
   @override
   void initState() {
-    localImeges = widget.images;
+    for (String i in widget.images) {
+      if (lookupMimeType(i)![0] == 'i') {
+        localImeges.add(i);
+      }
+    }
     for (int i = 0; i < localImeges.length; i++) {
       keys.add(GlobalKey<ProImageEditorState>());
       // if (paths[i] == null) {
@@ -126,7 +131,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       if (paths[i] == null) {
         _preCache(i);
       }
-
       ImageItem item = ImageItem(
           paths[i] ?? localImeges[i],
           i,
@@ -134,7 +138,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
             visible: choice == i,
             child: LayoutBuilder(builder: (context, constraints) {
               return edittor(
-                  paths[i] ?? localImeges[i], constraints, i, keys[i]);
+                  paths[i] ?? localImeges[i], constraints, i,keys[i]);
             }),
           ),
           keys[i],
@@ -158,10 +162,10 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   }
 
   ProImageEditor edittor(String path, BoxConstraints constraints, int index,
-      GlobalKey<ProImageEditorState> key) {
+      GlobalKey<ProImageEditorState> key2) {
     return ProImageEditor.file(
       File(path),
-      key: key,
+      key: key2,
       callbacks: ProImageEditorCallbacks(
         onImageEditingComplete: (byt) => _onEditingDone(byt),
       ),
@@ -210,7 +214,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                             ),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: const Text('Got it'),
+                                child: const Text('Ok'),
                                 onPressed: () {
                                   if (newColor != null) {
                                     setState(() =>
@@ -355,6 +359,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       ),
     );
   }
+
   void _scrollToItem(int index) {
     final offset = index * 60.0;
     _bottomBarScrollCtrl.animateTo(
@@ -392,12 +397,11 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                     for (var i in editors)
                       GestureDetector(
                         onTap: () async {
-                          
                           await _preCache(i.index);
                           setState(() {
                             choice = i.index;
                           });
-                          // _scrollToItem(choice); 
+                          // _scrollToItem(choice);
                         },
                         child: SizedBox(
                           width: 60,
@@ -554,14 +558,14 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                   ),
                   GestureDetector(
                       onTap: () async {
-                         for (int i = 0; i < localImeges.length; i++) {
+                        for (int i = 0; i < localImeges.length; i++) {
                           if (paths[i] == null) {
                             await _preCache(i);
                           }
                         }
                         final List<XFile> images =
                             await ImagePicker().pickMultiImage();
-                       
+
                         if (images.isNotEmpty) {
                           for (var i in images) {
                             keys.add(GlobalKey<ProImageEditorState>());
