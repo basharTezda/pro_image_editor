@@ -2106,97 +2106,99 @@ class ProImageEditorState extends State<ProImageEditor>
   }
 
   Widget _buildInteractiveContent() {
-    return Center(
-      child: Stack(
-        children: [
-          Padding(
-            padding: selectedLayerIndex >= 0 &&
-                    configs.layerInteraction.hideToolbarOnInteraction
-                ? EdgeInsets.only(
-                    top: sizesManager.appBarHeight,
-                    bottom: sizesManager.bottomBarHeight,
-                  )
-                : EdgeInsets.zero,
-            child: ExtendedInteractiveViewer(
-              key: _interactiveViewer,
-              boundaryMargin: mainEditorConfigs.boundaryMargin,
-              enableZoom: mainEditorConfigs.enableZoom,
-              minScale: mainEditorConfigs.editorMinScale,
-              maxScale: mainEditorConfigs.editorMaxScale,
-              onInteractionStart: (details) {
-                callbacks.mainEditorCallbacks?.onEditorZoomScaleStart
-                    ?.call(details);
-                layerInteractionManager.freeStyleHighPerformanceEditorZoom =
-                    (paintEditorConfigs.freeStyleHighPerformanceMoving ??
-                            !isDesktop) ||
-                        (paintEditorConfigs.freeStyleHighPerformanceScaling ??
-                            !isDesktop);
-
-                _controllers.uiLayerCtrl.add(null);
-              },
-              onInteractionUpdate:
-                  callbacks.mainEditorCallbacks?.onEditorZoomScaleUpdate,
-              onInteractionEnd: (details) {
-                callbacks.mainEditorCallbacks?.onEditorZoomScaleEnd
-                    ?.call(details);
-                layerInteractionManager.freeStyleHighPerformanceEditorZoom =
-                    false;
-                _controllers.uiLayerCtrl.add(null);
-              },
-              child: ContentRecorder(
-                key: const ValueKey('main-editor-content-recorder'),
-                autoDestroyController: false,
-                controller: _controllers.screenshot,
-                child: Stack(
-                  alignment: Alignment.center,
-                  fit: StackFit.expand,
-                  children: [
-                    /// Build Image
-                    _buildImage(),
-
-                    /// Build layer stack
-                    _buildLayers(),
-
-                    if (customWidgets.mainEditor.bodyItemsRecorded != null)
-                      ...customWidgets.mainEditor.bodyItemsRecorded!(
-                          this, _rebuildController.stream),
-                  ],
+    return Container(color: Colors.black,
+      child: Center(
+        child: Stack(
+          children: [
+            Padding(
+              padding: selectedLayerIndex >= 0 &&
+                      configs.layerInteraction.hideToolbarOnInteraction
+                  ? EdgeInsets.only(
+                      top: sizesManager.appBarHeight,
+                      bottom: sizesManager.bottomBarHeight,
+                    )
+                  : EdgeInsets.zero,
+              child: ExtendedInteractiveViewer(
+                key: _interactiveViewer,
+                boundaryMargin: mainEditorConfigs.boundaryMargin,
+                enableZoom: mainEditorConfigs.enableZoom,
+                minScale: mainEditorConfigs.editorMinScale,
+                maxScale: mainEditorConfigs.editorMaxScale,
+                onInteractionStart: (details) {
+                  callbacks.mainEditorCallbacks?.onEditorZoomScaleStart
+                      ?.call(details);
+                  layerInteractionManager.freeStyleHighPerformanceEditorZoom =
+                      (paintEditorConfigs.freeStyleHighPerformanceMoving ??
+                              !isDesktop) ||
+                          (paintEditorConfigs.freeStyleHighPerformanceScaling ??
+                              !isDesktop);
+      
+                  _controllers.uiLayerCtrl.add(null);
+                },
+                onInteractionUpdate:
+                    callbacks.mainEditorCallbacks?.onEditorZoomScaleUpdate,
+                onInteractionEnd: (details) {
+                  callbacks.mainEditorCallbacks?.onEditorZoomScaleEnd
+                      ?.call(details);
+                  layerInteractionManager.freeStyleHighPerformanceEditorZoom =
+                      false;
+                  _controllers.uiLayerCtrl.add(null);
+                },
+                child: ContentRecorder(
+                  key: const ValueKey('main-editor-content-recorder'),
+                  autoDestroyController: false,
+                  controller: _controllers.screenshot,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    fit: StackFit.expand,
+                    children: [
+                      /// Build Image
+                      _buildImage(),
+                        
+                      /// Build layer stack
+                      _buildLayers(),
+                        
+                      if (customWidgets.mainEditor.bodyItemsRecorded != null)
+                        ...customWidgets.mainEditor.bodyItemsRecorded!(
+                            this, _rebuildController.stream),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          if (imageGenerationConfigs.captureOnlyBackgroundImageArea)
-            Hero(
-              tag: 'crop_layer_painter_hero',
-              child: CustomPaint(
-                foregroundPainter: imageGenerationConfigs
-                        .captureOnlyBackgroundImageArea
-                    ? CropLayerPainter(
-                        opacity:
-                            imageEditorTheme.outsideCaptureAreaLayerOpacity,
-                        backgroundColor: imageEditorTheme.background,
-                        imgRatio: stateManager.transformConfigs.isNotEmpty
-                            ? stateManager
-                                .transformConfigs.cropRect.size.aspectRatio
-                            : sizesManager.decodedImageSize.aspectRatio,
-                        isRoundCropper: cropRotateEditorConfigs.roundCropper,
-                        is90DegRotated:
-                            stateManager.transformConfigs.is90DegRotated,
-                      )
-                    : null,
-                child: const SizedBox.expand(),
+            if (imageGenerationConfigs.captureOnlyBackgroundImageArea)
+              Hero(
+                tag: 'crop_layer_painter_hero',
+                child: CustomPaint(
+                  foregroundPainter: imageGenerationConfigs
+                          .captureOnlyBackgroundImageArea
+                      ? CropLayerPainter(
+                          opacity:
+                              imageEditorTheme.outsideCaptureAreaLayerOpacity,
+                          backgroundColor: imageEditorTheme.background,
+                          imgRatio: stateManager.transformConfigs.isNotEmpty
+                              ? stateManager
+                                  .transformConfigs.cropRect.size.aspectRatio
+                              : sizesManager.decodedImageSize.aspectRatio,
+                          isRoundCropper: cropRotateEditorConfigs.roundCropper,
+                          is90DegRotated:
+                              stateManager.transformConfigs.is90DegRotated,
+                        )
+                      : null,
+                  child: const SizedBox.expand(),
+                ),
               ),
-            ),
-
-          /// Build helper stuff
-          if (!_processFinalImage) ...[
-            _buildHelperLines(),
-            if (selectedLayerIndex >= 0) _buildRemoveIcon(),
+      
+            /// Build helper stuff
+            if (!_processFinalImage) ...[
+              _buildHelperLines(),
+              if (selectedLayerIndex >= 0) _buildRemoveIcon(),
+            ],
+            if (customWidgets.mainEditor.bodyItems != null)
+              ...customWidgets.mainEditor.bodyItems!(
+                  this, _rebuildController.stream),
           ],
-          if (customWidgets.mainEditor.bodyItems != null)
-            ...customWidgets.mainEditor.bodyItems!(
-                this, _rebuildController.stream),
-        ],
+        ),
       ),
     );
   }
@@ -2597,29 +2599,35 @@ class ProImageEditorState extends State<ProImageEditor>
         Positioned(
           key: _removeAreaKey,
           top: 0,
-          left: 0,
+          right: 0,
           child: SafeArea(
             bottom: false,
             child: StreamBuilder(
                 stream: _controllers.removeBtnCtrl.stream,
                 builder: (context, snapshot) {
-                  return Container(
-                    height: kToolbarHeight,
-                    width: kToolbarHeight,
-                    decoration: BoxDecoration(
-                      color: layerInteractionManager.hoverRemoveBtn
-                          ? imageEditorTheme
-                              .layerInteraction.removeAreaBackgroundActive
-                          : imageEditorTheme
-                              .layerInteraction.removeAreaBackgroundInactive,
-                      borderRadius: const BorderRadius.only(
-                          bottomRight: Radius.circular(100)),
-                    ),
-                    padding: const EdgeInsets.only(right: 12, bottom: 7),
-                    child: Center(
-                      child: Icon(
-                        icons.removeElementZone,
-                        size: 28,
+                  return RotatedBox(
+                    quarterTurns: 1,
+                    child: Container(
+                      height: kToolbarHeight,
+                      width: kToolbarHeight,
+                      decoration: BoxDecoration(
+                        color: layerInteractionManager.hoverRemoveBtn
+                            ? imageEditorTheme
+                                .layerInteraction.removeAreaBackgroundActive
+                            : imageEditorTheme
+                                .layerInteraction.removeAreaBackgroundInactive,
+                        borderRadius: const BorderRadius.only(
+                            bottomRight: Radius.circular(100)),
+                      ),
+                      padding: const EdgeInsets.only(right: 12, bottom: 7),
+                      child: Center(
+                        child: RotatedBox(
+                          quarterTurns: -1,
+                          child: Icon(
+                            icons.removeElementZone,
+                            size: 28,
+                          ),
+                        ),
                       ),
                     ),
                   );

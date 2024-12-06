@@ -164,6 +164,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
         onImageEditingComplete: (byt) => _onEditingDone(byt),
       ),
       configs: ProImageEditorConfigs(
+    // theme: ThemeData(scaffoldBackgroundColor: Colors.white),
         designMode: platformDesignMode,
         customWidgets: ImageEditorCustomWidgets(
           loadingDialog: (message, configs) => FrostedGlassLoadingDialog(
@@ -366,6 +367,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   double iconSize = 18;
   Widget _bottomNavigationBar(ProImageEditorState editor, Key key,
       BoxConstraints constraints, int index, String path) {
+       
     return BottomAppBar(
       notchMargin: 1,
       height: kBottomNavigationBarHeight + (localImeges.length > 1 ? 100 : 50),
