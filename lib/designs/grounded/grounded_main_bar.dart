@@ -94,12 +94,12 @@ class GroundedMainBarState extends State<GroundedMainBar>
     return GroundedBottomWrapper(
       theme: configs.theme,
       children: (constraints) => [
-        Scrollbar(
-          controller: _bottomBarScrollCtrl,
-          scrollbarOrientation: ScrollbarOrientation.top,
-          thickness: isDesktop ? null : 0,
-          child: _buildFunctions(constraints),
-        ),
+        // Scrollbar(
+        //   controller: _bottomBarScrollCtrl,
+        //   scrollbarOrientation: ScrollbarOrientation.top,
+        //   thickness: isDesktop ? null : 0,
+        //   child: _buildFunctions(constraints),
+        // ),
         GroundedBottomBar(
           configs: configs,
           undo: widget.editor.undoAction,

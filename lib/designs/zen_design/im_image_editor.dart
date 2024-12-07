@@ -164,6 +164,35 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
         onImageEditingComplete: (byt) => _onEditingDone(byt),
       ),
       configs: ProImageEditorConfigs(
+           imageEditorTheme: const ImageEditorTheme(
+            background: Color(0xFF000000),
+            bottomBarBackgroundColor: Color(0xFF000000),
+            textEditor: TextEditorTheme(
+                textFieldMargin: EdgeInsets.only(top: kToolbarHeight),
+                bottomBarBackgroundColor: Colors.transparent,
+              
+                    ),
+            paintingEditor: PaintingEditorTheme(
+              background: Color(0xFF000000),
+              initialStrokeWidth: 5,
+            ),
+            cropRotateEditor: CropRotateEditorTheme(
+                cropCornerColor: Color(0xFFFFFFFF),
+                cropCornerLength: 36,
+                cropCornerThickness: 4,
+                background: Color(0xFF000000),
+                helperLineColor: Color(0x25FFFFFF)),
+            filterEditor: FilterEditorTheme(
+              filterListSpacing: 7,
+              filterListMargin: EdgeInsets.fromLTRB(8, 0, 8, 8),
+              background: Color(0xFF000000),
+            ),
+            blurEditor: BlurEditorTheme(
+              background: Color(0xFF000000),
+            ),
+         
+          ),
+         
     // theme: ThemeData(scaffoldBackgroundColor: Colors.white),
         designMode: platformDesignMode,
         customWidgets: ImageEditorCustomWidgets(
@@ -359,7 +388,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     final offset = index * 60.0;
     _bottomBarScrollCtrl.animateTo(
       offset,
-      duration: Duration(seconds: 1),
+      duration: const Duration(seconds: 1),
       curve: Curves.easeInOut,
     );
   }
