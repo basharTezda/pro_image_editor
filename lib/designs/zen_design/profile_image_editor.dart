@@ -852,7 +852,7 @@ class _ImageEditorState extends State<ProfileImageEditor> {
         cropped == false) {
       _openCropEditor();
     }
-    return Container();
+        return Container(color: Colors.black,);
   }
 }
 
