@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 import 'dart:developer' as l;
 import 'dart:io';
 import 'dart:math';
@@ -93,7 +95,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       keys.add(GlobalKey<ProImageEditorState>());
       // if (paths[i] == null) {
       preCache(i);
-      _preCache();
+      // _preCache();
       // }
     }
     _bottomBarScrollCtrl = ScrollController();
@@ -121,7 +123,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     for (int i = 0; i < localImeges.length; i++) {
       if (paths[i] == null) {
         preCache(i);
-         _preCache();
+        // _preCache();
       }
       ImageItem item = ImageItem(
           paths[i] ?? localImeges[i],
@@ -164,36 +166,34 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
         onImageEditingComplete: (byt) => _onEditingDone(byt),
       ),
       configs: ProImageEditorConfigs(
-           imageEditorTheme: const ImageEditorTheme(
-            background: Color(0xFF000000),
-            bottomBarBackgroundColor: Color(0xFF000000),
-            textEditor: TextEditorTheme(
-                textFieldMargin: EdgeInsets.only(top: kToolbarHeight),
-                bottomBarBackgroundColor: Colors.transparent,
-              
-                    ),
-            paintingEditor: PaintingEditorTheme(
-              background: Color(0xFF000000),
-              initialStrokeWidth: 5,
-            ),
-            cropRotateEditor: CropRotateEditorTheme(
-                cropCornerColor: Color(0xFFFFFFFF),
-                cropCornerLength: 36,
-                cropCornerThickness: 4,
-                background: Color(0xFF000000),
-                helperLineColor: Color(0x25FFFFFF)),
-            filterEditor: FilterEditorTheme(
-              filterListSpacing: 7,
-              filterListMargin: EdgeInsets.fromLTRB(8, 0, 8, 8),
-              background: Color(0xFF000000),
-            ),
-            blurEditor: BlurEditorTheme(
-              background: Color(0xFF000000),
-            ),
-         
+        imageEditorTheme: const ImageEditorTheme(
+          background: Color(0xFF000000),
+          bottomBarBackgroundColor: Color(0xFF000000),
+          textEditor: TextEditorTheme(
+            textFieldMargin: EdgeInsets.only(top: kToolbarHeight),
+            bottomBarBackgroundColor: Colors.transparent,
           ),
-         
-    // theme: ThemeData(scaffoldBackgroundColor: Colors.white),
+          paintingEditor: PaintingEditorTheme(
+            background: Color(0xFF000000),
+            initialStrokeWidth: 5,
+          ),
+          cropRotateEditor: CropRotateEditorTheme(
+              cropCornerColor: Color(0xFFFFFFFF),
+              cropCornerLength: 36,
+              cropCornerThickness: 4,
+              background: Color(0xFF000000),
+              helperLineColor: Color(0x25FFFFFF)),
+          filterEditor: FilterEditorTheme(
+            filterListSpacing: 7,
+            filterListMargin: EdgeInsets.fromLTRB(8, 0, 8, 8),
+            background: Color(0xFF000000),
+          ),
+          blurEditor: BlurEditorTheme(
+            background: Color(0xFF000000),
+          ),
+        ),
+
+        // theme: ThemeData(scaffoldBackgroundColor: Colors.white),
         designMode: platformDesignMode,
         customWidgets: ImageEditorCustomWidgets(
           loadingDialog: (message, configs) => FrostedGlassLoadingDialog(
@@ -396,7 +396,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   double iconSize = 18;
   Widget _bottomNavigationBar(ProImageEditorState editor, Key key,
       BoxConstraints constraints, int index, String path) {
-       
     return BottomAppBar(
       notchMargin: 1,
       height: kBottomNavigationBarHeight + (localImeges.length > 1 ? 100 : 50),
@@ -417,7 +416,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                     GestureDetector(
                       onTap: () async {
                         await preCache(i.index);
-                         await _preCache( );
+                        await _preCache();
                         setState(() {
                           choice = i.index;
                         });
@@ -580,7 +579,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                       for (int i = 0; i < localImeges.length; i++) {
                         if (paths[i] == null) {
                           await _preCache();
-                         await preCache( i);
+                          await preCache(i);
                         }
                       }
                       final List<XFile> images =
@@ -677,21 +676,13 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                                     ? await i.key.currentState!
                                         .captureEditorImage()
                                     : File(i.path).readAsBytesSync();
-                                var result =
-                                    await FlutterImageCompress.compressWithList(
-                                  img,
-                                  minHeight: 1920,
-                                  minWidth: 1080,
-                                  quality: Platform.isIOS ? 1 : 50,
-                                );
-                                file.writeAsBytesSync(result);
+                                file.writeAsBytesSync(img);
                                 path = file.path;
 
                                 list.add(path);
                               }
                               widget.onDone.call(list);
                               Navigator.pop(context);
-                              print("object");
                             },
                             icon: const Icon(Icons.send),
                             color: Colors.white,
@@ -740,7 +731,8 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     file.writeAsBytesSync(img);
     paths[editors[choice].index] = file.path;
   }
-    Future<void> preCache(int i) async {
+
+  Future<void> preCache(int i) async {
     final directory = await getApplicationDocumentsDirectory();
     var file = File('${directory.path}/image_${DateTime.now()}.webp');
     Uint8List img;
@@ -752,6 +744,16 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     file.writeAsBytesSync(img);
     paths[editors[i].index] = file.path;
   }
+}
+
+//compress image
+Future<Uint8List> compressedImage(Uint8List img) async {
+  return await FlutterImageCompress.compressWithList(
+    img,
+    minHeight: 1920,
+    minWidth: 1080,
+    quality: Platform.isIOS ? 1 : 50,
+  );
 }
 
 class ImageItem {
