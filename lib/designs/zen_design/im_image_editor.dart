@@ -747,9 +747,9 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
 }
 
 //compress image
-Future<Uint8List> compressedImage(Uint8List img) async {
-  return await FlutterImageCompress.compressWithList(
-    img,
+Future<Uint8List?> compressedImage(File img) async {
+  return await FlutterImageCompress.compressWithFile(
+    img.absolute.path,
     minHeight: 1920,
     minWidth: 1080,
     quality: Platform.isIOS ? 1 : 50,
