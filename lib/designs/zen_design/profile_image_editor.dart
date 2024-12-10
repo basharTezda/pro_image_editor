@@ -521,14 +521,14 @@ class _ImageEditorState extends State<ProfileImageEditor> {
                         foregroundColor: Colors.black,
                         leading: IconButton(
                             onPressed: editor.closeEditor,
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.close,
                               color: Colors.white,
                             )),
                         actions: [
                           IconButton(
                               onPressed: editor.doneEditing,
-                              icon: Text(
+                              icon: const Text(
                                 "Save",
                                 style: TextStyle(fontWeight: FontWeight.w900),
                               )),
@@ -846,13 +846,35 @@ class _ImageEditorState extends State<ProfileImageEditor> {
 
   @override
   Widget build(BuildContext context) {
-
-    if (newPath!=null&& widget.editorType != EditorType.image &&
+    if (newPath != null &&
+        widget.editorType != EditorType.image &&
         done == false &&
         cropped == false) {
       _openCropEditor();
     }
-        return Container(color: Colors.black,);
+    return Scaffold(
+      body: Container(
+          color: Colors.black,
+          child: newPath == null
+              ? const Center(
+                  child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 0.9,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'Compressing...',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ))
+              : null),
+    );
   }
 }
 

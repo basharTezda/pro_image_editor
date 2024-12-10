@@ -68,7 +68,8 @@ class FrostedGlassLoadingDialog extends StatelessWidget {
                           width: 40,
                           child: FittedBox(
                             child: CircularProgressIndicator(
-                              color: Colors.blue.shade200,
+                              color: Colors.white,
+                              strokeWidth: 0.9,
                             ),
                           ),
                         ),
