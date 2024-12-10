@@ -64,16 +64,16 @@ class _GroundedBottomBarState extends State<GroundedBottomBar> {
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 12),
       color:  Colors.black,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IconButton(
-            tooltip: widget.configs.i18n.cancel,
-            onPressed: widget.close,
-            icon: Icon(
-              widget.configs.icons.closeEditor,
-              color: foreGroundColor,
-            ),
-          ),
+          // IconButton(
+          //   tooltip: widget.configs.i18n.cancel,
+          //   onPressed: widget.close,
+          //   icon: Icon(
+          //     widget.configs.icons.closeEditor,
+          //     color: foreGroundColor,
+          //   ),
+          // ),
           if (widget.redo != null)
             Row(
               children: [
@@ -100,21 +100,22 @@ class _GroundedBottomBarState extends State<GroundedBottomBar> {
                 ),
               ],
             ),
-          widget.doneText != null
-              ? GestureDetector(
-                  onTap: widget.done,
-                  child: Text(
-                    widget.doneText!,
-                    style: TextStyle(color: Colors.white),
-                  ))
-              : IconButton(
-                  tooltip: widget.configs.i18n.done,
-                  onPressed: widget.done,
-                  icon: Icon(
-                    widget.configs.icons.doneIcon,
-                    color: foreGroundColor,
-                  ),
-                )
+          // widget.doneText != null
+          //     ? GestureDetector(
+          //         onTap: widget.done,
+          //         child: Text(
+          //           widget.doneText!,
+          //           style: TextStyle(color: Colors.white),
+          //         ))
+          //     : 
+          //     IconButton(
+          //         tooltip: widget.configs.i18n.done,
+          //         onPressed: widget.done,
+          //         icon: Icon(
+          //           widget.configs.icons.doneIcon,
+          //           color: foreGroundColor,
+          //         ),
+          //       )
         ],
       ),
     );
