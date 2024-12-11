@@ -176,8 +176,8 @@
       "languageVersion": "3.3"
     },
     {
-      "name": "ffmpeg_kit_flutter",
-      "rootUri": "file:///Users/basharalbashier/.pub-cache/hosted/pub.dev/ffmpeg_kit_flutter-6.0.3",
+      "name": "ffmpeg_kit_flutter_full_gpl",
+      "rootUri": "file:///Users/basharalbashier/.pub-cache/hosted/pub.dev/ffmpeg_kit_flutter_full_gpl-6.0.3",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -782,7 +782,7 @@
       "languageVersion": "3.2"
     }
   ],
-  "generated": "2024-12-11T18:44:33.281901Z",
+  "generated": "2024-12-11T18:55:22.736506Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/basharalbashier/Development/flutter",
