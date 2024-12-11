@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -8,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pro_image_editor/models/crop_rotate_editor/transform_factors.dart';
 import 'package:pro_image_editor/models/editor_configs/main_editor_configs.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
-
+import 'dart:ui' as ui;
 import '../frosted_glass/frosted_glass_loading_dialog.dart';
 import '../grounded/grounded_blur_bar.dart';
 import '../grounded/grounded_crop_rotate_bar.dart';
@@ -810,18 +814,104 @@ class _ImageEditorState extends State<ProfileImageEditor> {
 
   String? newPath;
   precachImg(String path) async {
-    var result = await FlutterImageCompress.compressWithList(
-      File(path).readAsBytesSync(),
-      minHeight: 1920,
-      minWidth: 1080,
-      quality: Platform.isIOS ? 1 : 20,
-    );
-    final directory = await getApplicationDocumentsDirectory();
-    var file = File('${directory.path}/image_${DateTime.now()}.webp');
+    final directory = await getTemporaryDirectory();
+    final outputPath =
+        '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.jpg';
+    final webpPath =
+        '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.webp';
+    final scale = await resizeImage(path);
+    final command =
+        '-i $path -vf $scale -compression_level 4 $outputPath';
+//-preset photo / -qscale:v 90
+    try {
+      await FFmpegKit.execute(command).then(
+        (session) async {
+          // session.
+          final returnCode = await session.getReturnCode();
+          // session.
 
-    file.writeAsBytesSync(result);
-    newPath = file.path;
-    setState(() {});
+          if (ReturnCode.isSuccess(returnCode)) {
+            // await Future.delayed(Duration(seconds: 1)).then((onValue) {
+
+            // });
+          } else if (ReturnCode.isCancel(returnCode)) {
+            Navigator.of(context).pop();
+            // CANCEL
+          } else {
+            Navigator.of(context).pop();
+            // ERROR
+          }
+        },
+      );
+    } catch (e) {
+      log(e.toString());
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(Duration.zero).then((onValue) async {
+        File file = File(webpPath);
+        if (File(outputPath).existsSync()) {
+          file.writeAsBytesSync(File(outputPath).readAsBytesSync());
+          log(await getFileSize(file.path, 1));
+          newPath = file.path;
+          setState(() {});
+        }
+      });
+    });
+
+    // var result = await FlutterImageCompress.compressWithList(
+    //   File(path).readAsBytesSync(),
+    //   minHeight: 1920,
+    //   minWidth: 1080,
+    //   quality: Platform.isIOS ? 1 : 20,
+    // );
+
+    // file.writeAsBytesSync(result, flush: true);
+  }
+
+  Future<Map<String, int>?> getImageDimensions(String path) async {
+    try {
+      Image image =
+          path[0] == '/' ? Image.file(File(path)) : Image.network(path);
+
+      final Completer<ui.Image> completer = Completer<ui.Image>();
+      image.image.resolve(const ImageConfiguration()).addListener(
+        ImageStreamListener((ImageInfo info, bool _) {
+          completer.complete(info.image);
+        }),
+      );
+      final newImage = await completer.future;
+
+      // Determine the image orientation
+      return {
+        'width': newImage.width,
+        'height': newImage.height,
+      };
+    } catch (e) {
+      return null;
+    }
+    // return ;
+  }
+
+  Future<String> resizeImage(String path) async {
+    final dimensions = await getImageDimensions(path);
+    final width = dimensions!['width']!;
+    final height = dimensions['height']!;
+    // String scale;
+
+    if (width > height) {
+      // Landscape
+      return "scale=1920:-1";
+    } else if (height > width) {
+      // Portrait
+      return "scale=-1:1080";
+    } else {
+      // Square
+      return "scale=1080:-1";
+    }
+
+    // final command = "-i $inputPath -vf \"$scale\" $outputPath";
+    // await FFmpegKit.execute(command);
+    // print("Resizing completed!");
   }
 
   void _onEditingDone(Uint8List bytes) async {
@@ -842,6 +932,17 @@ class _ImageEditorState extends State<ProfileImageEditor> {
     widget.onEditingComplete.call(file.path);
     // : null;
     //
+  }
+
+  Future<String> getFileSize(String filepath, int decimals) async {
+    var file = File(filepath);
+    int bytes = await file.length();
+    if (bytes <= 0) return "0 B";
+    const suffixes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    var i = (math.log(bytes) / math.log(1024)).floor();
+    return ((bytes / math.pow(1024, i)).toStringAsFixed(decimals)) +
+        ' ' +
+        suffixes[i];
   }
 
   @override
