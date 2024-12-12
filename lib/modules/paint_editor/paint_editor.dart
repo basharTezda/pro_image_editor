@@ -16,6 +16,7 @@ import 'package:pro_image_editor/widgets/auto_image.dart';
 import 'package:pro_image_editor/widgets/extended/extended_interactive_viewer.dart';
 import 'package:pro_image_editor/widgets/layer_stack.dart';
 
+import '../../constant/widgets/icons.dart';
 import '/mixins/converted_configs.dart';
 import '/mixins/standalone_editor.dart';
 import '/models/crop_rotate_editor/transform_factors.dart';
@@ -747,7 +748,7 @@ class PaintingEditorState extends State<PaintingEditor>
       IconButton(
         tooltip: i18n.paintEditor.back,
         padding: const EdgeInsets.symmetric(horizontal: 8),
-        icon: Icon(icons.backButton),
+        icon: backButton,
         onPressed: close,
       ),
       const Spacer(),

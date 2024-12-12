@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/services.dart';
+import 'package:pro_image_editor/constant/widgets/icons.dart';
 
 // Project imports:
 import 'package:pro_image_editor/mixins/converted_callbacks.dart';
@@ -1982,7 +1983,7 @@ class CropRotateEditorState extends State<CropRotateEditor>
         IconButton(
           tooltip: i18n.cropRotateEditor.back,
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          icon: Icon(icons.backButton),
+          icon: backButton,
           onPressed: close,
         ),
         const Spacer(),

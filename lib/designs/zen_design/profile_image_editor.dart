@@ -528,13 +528,15 @@ class _ImageEditorState extends State<ProfileImageEditor> {
                             icon: const Icon(
                               Icons.close,
                               color: Colors.white,
+                              size: 32,
                             )),
                         actions: [
                           IconButton(
                               onPressed: editor.doneEditing,
                               icon: const Text(
-                                "Save",
-                                style: TextStyle(fontWeight: FontWeight.w900),
+                                'SAVE',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 18),
                               )),
                         ],
                       );
@@ -618,7 +620,7 @@ class _ImageEditorState extends State<ProfileImageEditor> {
                               close: editor.closeEditor,
                               enableRedo: editor.canRedo,
                               enableUndo: editor.canUndo,
-                              doneText: "Upload",
+                              doneText: 'Upload',
                             ),
                           ],
                         ),
@@ -821,8 +823,8 @@ class _ImageEditorState extends State<ProfileImageEditor> {
     //     '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.webp';
     final scale = await resizeImage(path);
     final resizeCommand = scale != null
-        ? "-i $path -vf \"$scale\" -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath"
-        : "-i $path -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath";
+        ? '-i $path -vf \"$scale\" -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath'
+        : '-i $path -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath';
 
     // final command =
     //     '-i $path -vf $scale -qscale:v 90 -compression_level 4 $outputPath';
@@ -915,21 +917,21 @@ class _ImageEditorState extends State<ProfileImageEditor> {
     if (width < height) {
       // Portrait
       if (width > 1080) {
-        return "scale=1080:-1"; // Reduce width to 1080, maintain aspect ratio
+        return 'scale=1080:-1'; // Reduce width to 1080, maintain aspect ratio
       } else {
         return null; // No scaling needed
       }
     } else if (width > height) {
       // Landscape
       if (height > 1080) {
-        return "scale=-1:1080"; // Reduce height to 1080, maintain aspect ratio
+        return 'scale=-1:1080'; // Reduce height to 1080, maintain aspect ratio
       } else {
         return null; // No scaling needed
       }
     } else {
       // Square
       if (width > 1080) {
-        return "scale=1080:1080"; // Reduce to 1080x1080
+        return 'scale=1080:1080'; // Reduce to 1080x1080
       } else {
         return null; // No scaling needed
       }
@@ -962,8 +964,8 @@ class _ImageEditorState extends State<ProfileImageEditor> {
   Future<String> getFileSize(String filepath, int decimals) async {
     var file = File(filepath);
     int bytes = await file.length();
-    if (bytes <= 0) return "0 B";
-    const suffixes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    if (bytes <= 0) return '0 B';
+    const suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
     var i = (math.log(bytes) / math.log(1024)).floor();
     return ((bytes / math.pow(1024, i)).toStringAsFixed(decimals)) +
         ' ' +

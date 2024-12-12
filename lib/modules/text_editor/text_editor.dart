@@ -10,6 +10,7 @@ import 'package:pro_image_editor/mixins/converted_configs.dart';
 import 'package:pro_image_editor/plugins/rounded_background_text/src/rounded_background_text_field.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 
+import '../../constant/widgets/icons.dart';
 import '../../mixins/editor_configs_mixin.dart';
 import '../../utils/theme_functions.dart';
 import '../../widgets/bottom_sheets_header_row.dart';
@@ -428,7 +429,7 @@ class TextEditorState extends State<TextEditor>
         IconButton(
           tooltip: i18n.textEditor.back,
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          icon: Icon(icons.backButton),
+          icon: backButton,
           onPressed: close,
         ),
         const Spacer(),

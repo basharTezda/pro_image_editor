@@ -10,6 +10,7 @@ import 'package:pro_image_editor/models/transform_helper.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:pro_image_editor/utils/content_recorder.dart/utils/record_invisible_widget.dart';
 
+import '../../constant/widgets/icons.dart';
 import '../../mixins/converted_configs.dart';
 import '../../mixins/standalone_editor.dart';
 import '../../models/crop_rotate_editor/transform_factors.dart';
@@ -277,7 +278,7 @@ class FilterEditorState extends State<FilterEditor>
         IconButton(
           tooltip: i18n.filterEditor.back,
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          icon: Icon(icons.backButton),
+          icon: backButton,
           onPressed: close,
         ),
         const Spacer(),
