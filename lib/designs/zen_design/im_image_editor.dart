@@ -211,174 +211,175 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
               stream: rebuildStream,
             ),
           ),
-          paintEditor: CustomWidgetsPaintEditor(
-            appBar: (paintEditor, rebuildStream) => null,
-            colorPicker: (paintEditor, rebuildStream, currentColor, setColor) =>
-                null,
-            bottomBar: (editorState, rebuildStream) {
-              return ReactiveCustomWidget(
-                builder: (context) {
-                  return GroundedPaintingBar(
-                      configs: editorState.configs,
-                      callbacks: editorState.callbacks,
-                      editor: editorState,
-                      i18nColor: 'Color',
-                      showColorPicker: (currentColor) {
-                        Color? newColor;
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            content: SingleChildScrollView(
-                              child: ColorPicker(
-                                pickerColor: currentColor,
-                                onColorChanged: (color) {
-                                  newColor = color;
-                                },
-                              ),
-                            ),
-                            actions: <Widget>[
-                              ElevatedButton(
-                                child: const Text('Ok'),
-                                onPressed: () {
-                                  if (newColor != null) {
-                                    setState(() =>
-                                        editorState.colorChanged(newColor!));
-                                  }
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      });
-                },
-                stream: rebuildStream,
-              );
-            },
-          ),
-          textEditor: CustomWidgetsTextEditor(
-            appBar: (textEditor, rebuildStream) => null,
-            colorPicker: (textEditor, rebuildStream, currentColor, setColor) =>
-                null,
-            bottomBar: (editorState, rebuildStream) {
-              return ReactiveCustomWidget(
-                builder: (context) {
-                  return GroundedTextBar(
-                      configs: editorState.configs,
-                      callbacks: editorState.callbacks,
-                      editor: editorState,
-                      i18nColor: 'Color',
-                      showColorPicker: (currentColor) {
-                        Color? newColor;
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            content: SingleChildScrollView(
-                              child: ColorPicker(
-                                pickerColor: currentColor,
-                                onColorChanged: (color) {
-                                  newColor = color;
-                                },
-                              ),
-                            ),
-                            actions: <Widget>[
-                              ElevatedButton(
-                                child: const Text('OK'),
-                                onPressed: () {
-                                  if (newColor != null) {
-                                    setState(() =>
-                                        editorState.primaryColor = newColor!);
-                                  }
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      });
-                },
-                stream: rebuildStream,
-              );
-            },
-            bodyItems: (editorState, rebuildStream) => [
-              ReactiveCustomWidget(
-                stream: rebuildStream,
-                builder: (_) => Padding(
-                  padding: const EdgeInsets.only(top: kToolbarHeight),
-                  child: GroundedTextSizeSlider(textEditor: editorState),
-                ),
-              ),
-            ],
-          ),
-          cropRotateEditor: CustomWidgetsCropRotateEditor(
-            appBar: (cropRotateEditor, rebuildStream) => null,
-            bottomBar: (cropRotateEditor, rebuildStream) =>
-                ReactiveCustomWidget(
-              stream: rebuildStream,
-              builder: (_) => GroundedCropRotateBar(
-                configs: cropRotateEditor.configs,
-                callbacks: cropRotateEditor.callbacks,
-                editor: cropRotateEditor,
-                selectedRatioColor: imageEditorPrimaryColor,
-              ),
-            ),
-          ),
-          tuneEditor: CustomWidgetsTuneEditor(
-            appBar: (editor, rebuildStream) => null,
-            bottomBar: (editorState, rebuildStream) {
-              return ReactiveCustomWidget(
-                builder: (context) {
-                  return GroundedTuneBar(
-                    configs: editorState.configs,
-                    callbacks: editorState.callbacks,
-                    editor: editorState,
-                  );
-                },
-                stream: rebuildStream,
-              );
-            },
-          ),
-          filterEditor: CustomWidgetsFilterEditor(
-            slider:
-                (editorState, rebuildStream, value, onChanged, onChangeEnd) =>
-                    ReactiveCustomWidget(
-              stream: rebuildStream,
-              builder: (_) => Slider(
-                onChanged: onChanged,
-                onChangeEnd: onChangeEnd,
-                value: value,
-                activeColor: Colors.blue.shade200,
-              ),
-            ),
-            appBar: (editorState, rebuildStream) => null,
-            bottomBar: (editorState, rebuildStream) {
-              return ReactiveCustomWidget(
-                builder: (context) {
-                  return GroundedFilterBar(
-                    configs: editorState.configs,
-                    callbacks: editorState.callbacks,
-                    editor: editorState,
-                  );
-                },
-                stream: rebuildStream,
-              );
-            },
-          ),
-          blurEditor: CustomWidgetsBlurEditor(
-            appBar: (blurEditor, rebuildStream) => null,
-            bottomBar: (editorState, rebuildStream) {
-              return ReactiveCustomWidget(
-                builder: (context) {
-                  return GroundedBlurBar(
-                    configs: editorState.configs,
-                    callbacks: editorState.callbacks,
-                    editor: editorState,
-                  );
-                },
-                stream: rebuildStream,
-              );
-            },
-          ),
+          // paintEditor: CustomWidgetsPaintEditor(
+          //   appBar: (paintEditor, rebuildStream) => null,
+          //   colorPicker: (paintEditor, rebuildStream, currentColor, setColor) =>
+          //       null,
+          //   bottomBar: (editorState, rebuildStream) {
+          //     return ReactiveCustomWidget(
+          //       builder: (context) {
+          //         return GroundedPaintingBar(
+          //             configs: editorState.configs,
+          //             callbacks: editorState.callbacks,
+          //             editor: editorState,
+          //             i18nColor: 'Color',
+          //             showColorPicker: (currentColor) {
+          //               Color? newColor;
+          //               showDialog(
+          //                 context: context,
+          //                 builder: (context) => AlertDialog(
+          //                   content: SingleChildScrollView(
+          //                     child: ColorPicker(
+          //                       pickerColor: currentColor,
+          //                       onColorChanged: (color) {
+          //                         newColor = color;
+          //                       },
+          //                     ),
+          //                   ),
+          //                   actions: <Widget>[
+          //                     ElevatedButton(
+          //                       child: const Text('Ok'),
+          //                       onPressed: () {
+          //                         if (newColor != null) {
+          //                           setState(() =>
+          //                               editorState.colorChanged(newColor!));
+          //                         }
+          //                         Navigator.of(context).pop();
+          //                       },
+          //                     ),
+          //                   ],
+          //                 ),
+          //               );
+          //             });
+          //       },
+          //       stream: rebuildStream,
+          //     );
+          //   },
+          // ),
+          // textEditor: CustomWidgetsTextEditor(
+          //   appBar: (textEditor, rebuildStream) => null,
+          //   colorPicker: (textEditor, rebuildStream, currentColor, setColor) =>
+          //       null,
+          //   bottomBar: (editorState, rebuildStream) {
+          //     return ReactiveCustomWidget(
+          //       builder: (context) {
+          //         return GroundedTextBar(
+          //             configs: editorState.configs,
+          //             callbacks: editorState.callbacks,
+          //             editor: editorState,
+          //             i18nColor: 'Color',
+          //             showColorPicker: (currentColor) {
+          //               Color? newColor;
+          //               showDialog(
+          //                 context: context,
+          //                 builder: (context) => AlertDialog(
+          //                   content: SingleChildScrollView(
+          //                     child: ColorPicker(
+          //                       pickerColor: currentColor,
+          //                       onColorChanged: (color) {
+          //                         newColor = color;
+          //                       },
+          //                     ),
+          //                   ),
+          //                   actions: <Widget>[
+          //                     ElevatedButton(
+          //                       child: const Text('OK'),
+          //                       onPressed: () {
+          //                         if (newColor != null) {
+          //                           setState(() =>
+          //                               editorState.primaryColor = newColor!);
+          //                         }
+          //                         Navigator.of(context).pop();
+          //                       },
+          //                     ),
+          //                   ],
+          //                 ),
+          //               );
+          //             });
+          //       },
+          //       stream: rebuildStream,
+          //     );
+          //   },
+          //   bodyItems: (editorState, rebuildStream) => [
+          //     ReactiveCustomWidget(
+          //       stream: rebuildStream,
+          //       builder: (_) => Padding(
+          //         padding: const EdgeInsets.only(top: kToolbarHeight),
+          //         child: GroundedTextSizeSlider(textEditor: editorState),
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // cropRotateEditor: CustomWidgetsCropRotateEditor(
+          //   appBar: (cropRotateEditor, rebuildStream) => null,
+          //   bottomBar: (cropRotateEditor, rebuildStream) =>
+          //       ReactiveCustomWidget(
+          //     stream: rebuildStream,
+          //     builder: (_) => GroundedCropRotateBar(
+          //       configs: cropRotateEditor.configs,
+          //       callbacks: cropRotateEditor.callbacks,
+          //       editor: cropRotateEditor,
+          //       selectedRatioColor: imageEditorPrimaryColor,
+          //     ),
+          //   ),
+          // ),
+          // tuneEditor: CustomWidgetsTuneEditor(
+          //   appBar: (editor, rebuildStream) => null,
+          //   bottomBar: (editorState, rebuildStream) {
+          //     return ReactiveCustomWidget(
+          //       builder: (context) {
+          //         return GroundedTuneBar(
+          //           configs: editorState.configs,
+          //           callbacks: editorState.callbacks,
+          //           editor: editorState,
+          //         );
+          //       },
+          //       stream: rebuildStream,
+          //     );
+          //   },
+          // ),
+          // filterEditor: CustomWidgetsFilterEditor(
+          //   slider:
+          //       (editorState, rebuildStream, value, onChanged, onChangeEnd) =>
+          //           ReactiveCustomWidget(
+          //     stream: rebuildStream,
+          //     builder: (_) => Slider(
+          //       onChanged: onChanged,
+          //       onChangeEnd: onChangeEnd,
+          //       value: value,
+          //       activeColor: Colors.blue.shade200,
+          //     ),
+          //   ),
+          //   appBar: (editorState, rebuildStream) => null,
+          //   bottomBar: (editorState, rebuildStream) {
+          //     return ReactiveCustomWidget(
+          //       builder: (context) {
+          //         return GroundedFilterBar(
+          //           configs: editorState.configs,
+          //           callbacks: editorState.callbacks,
+          //           editor: editorState,
+          //         );
+          //       },
+          //       stream: rebuildStream,
+          //     );
+          //   },
+          // ),
+          // blurEditor: CustomWidgetsBlurEditor(
+          //   appBar: (blurEditor, rebuildStream) => null,
+          //   bottomBar: (editorState, rebuildStream) {
+          //     return ReactiveCustomWidget(
+          //       builder: (context) {
+          //         return GroundedBlurBar(
+          //           configs: editorState.configs,
+          //           callbacks: editorState.callbacks,
+          //           editor: editorState,
+          //         );
+          //       },
+          //       stream: rebuildStream,
+          //     );
+          //   },
+          // ),
+       
         ),
       ),
     );
