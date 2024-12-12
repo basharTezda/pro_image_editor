@@ -816,15 +816,19 @@ class _ImageEditorState extends State<ProfileImageEditor> {
   precachImg(String path) async {
     final directory = await getTemporaryDirectory();
     final outputPath =
-        '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.jpg';
-    final webpPath =
         '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.webp';
+    // final webpPath =
+    //     '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.webp';
     final scale = await resizeImage(path);
-    final command =
-        '-i $path -vf $scale -compression_level 4 $outputPath';
+    final resizeCommand = scale != null
+        ? "-i $path -vf \"$scale\" -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath"
+        : "-i $path -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath";
+
+    // final command =
+    //     '-i $path -vf $scale -qscale:v 90 -compression_level 4 $outputPath';
 //-preset photo / -qscale:v 90
     try {
-      await FFmpegKit.execute(command).then(
+      await FFmpegKit.execute(resizeCommand).then(
         (session) async {
           // session.
           final returnCode = await session.getReturnCode();
@@ -848,11 +852,11 @@ class _ImageEditorState extends State<ProfileImageEditor> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(Duration.zero).then((onValue) async {
-        File file = File(webpPath);
+        // File file = File(webpPath);
         if (File(outputPath).existsSync()) {
-          file.writeAsBytesSync(File(outputPath).readAsBytesSync());
-          log(await getFileSize(file.path, 1));
-          newPath = file.path;
+          // file.writeAsBytesSync(File(outputPath).readAsBytesSync());
+          // log(await getFileSize(file.path, 1));
+          newPath = outputPath;
           setState(() {});
         }
       });
@@ -892,23 +896,44 @@ class _ImageEditorState extends State<ProfileImageEditor> {
     // return ;
   }
 
-  Future<String> resizeImage(String path) async {
+  Future<String?> resizeImage(String path) async {
     final dimensions = await getImageDimensions(path);
     final width = dimensions!['width']!;
     final height = dimensions['height']!;
     // String scale;
 
-    if (width > height) {
-      // Landscape
-      return "scale=1920:-1";
-    } else if (height > width) {
+    // if (width > height) {
+    //   // Landscape
+    //   return "scale=1920:-1";
+    // } else if (height > width) {
+    //   // Portrait
+    //   return "scale=-1:1080";
+    // } else {
+    //   // Square
+    //   return "scale=1080:-1";
+    // }
+    if (width < height) {
       // Portrait
-      return "scale=-1:1080";
+      if (width > 1080) {
+        return "scale=1080:-1"; // Reduce width to 1080, maintain aspect ratio
+      } else {
+        return null; // No scaling needed
+      }
+    } else if (width > height) {
+      // Landscape
+      if (height > 1080) {
+        return "scale=-1:1080"; // Reduce height to 1080, maintain aspect ratio
+      } else {
+        return null; // No scaling needed
+      }
     } else {
       // Square
-      return "scale=1080:-1";
+      if (width > 1080) {
+        return "scale=1080:1080"; // Reduce to 1080x1080
+      } else {
+        return null; // No scaling needed
+      }
     }
-
     // final command = "-i $inputPath -vf \"$scale\" $outputPath";
     // await FFmpegKit.execute(command);
     // print("Resizing completed!");
