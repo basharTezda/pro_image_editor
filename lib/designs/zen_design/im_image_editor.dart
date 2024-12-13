@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pro_image_editor/designs/zen_design/utils/compress_image.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 
 import '../frosted_glass/frosted_glass_loading_dialog.dart';
@@ -81,30 +82,21 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       label: 'Dash line',
     ),
   ];
-
+  Map<int, String> paths = {};
+  int choice = 0;
+  BoxConstraints? constraint;
   List<ImageItem> editors = [];
   List<String> localImeges = [];
+  List<GlobalKey<ProImageEditorState>> keys = [];
   @override
   void initState() {
-    for (String i in widget.images) {
-      if (lookupMimeType(i)![0] == 'i') {
-        localImeges.add(i);
-      }
-    }
-    for (int i = 0; i < localImeges.length; i++) {
-      keys.add(GlobalKey<ProImageEditorState>());
-      // if (paths[i] == null) {
-      preCache(i);
-      // _preCache();
-      // }
-    }
+    preperImages();
     _bottomBarScrollCtrl = ScrollController();
     _paintingBottomBarScrollCtrl = ScrollController();
     _cropBottomBarScrollCtrl = ScrollController();
     super.initState();
   }
 
-  List<GlobalKey<ProImageEditorState>> keys = [];
   @override
   void dispose() {
     _bottomBarScrollCtrl.dispose();
@@ -113,12 +105,49 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     super.dispose();
   }
 
-  Map<int, String> paths = {};
-  int choice = 0;
+  void preperImages() async {
+    for (String i in widget.images) {
+      if (lookupMimeType(i)![0] == 'i') {
+        String imagePath = await compressImage(i, context);
+        localImeges.add(imagePath);
+        keys.add(GlobalKey<ProImageEditorState>());
+      }
+    }
 
-  BoxConstraints? constraint;
+    for (int i = 0; i < localImeges.length; i++) {
+      // if (paths[i] == null) {
+      // await preCache(i);
+      // _preCache();
+      // }
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (localImeges.isEmpty) {
+      return Scaffold(
+        body: Container(
+            color: Colors.black,
+            child: Center(
+                child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 0.9,
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  'Compressing Image${widget.images.length > 1 ? "s" : ""}...',
+                  style: const TextStyle(color: Colors.white),
+                )
+              ],
+            ))),
+      );
+    }
     editors.clear();
     for (int i = 0; i < localImeges.length; i++) {
       if (paths[i] == null) {
@@ -379,7 +408,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
           //     );
           //   },
           // ),
-       
         ),
       ),
     );
@@ -405,7 +433,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (localImeges.length > 1)
+          if (editors.length > 1)
             SingleChildScrollView(
               controller: _bottomBarScrollCtrl,
               scrollDirection: Axis.horizontal,
@@ -457,22 +485,23 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                                 top: 0,
                                 right: 0,
                                 child: GestureDetector(
-                                    onTap: () => setState(() {
-                                          // var imageItem = editors
-                                          //     .map((toElement) => toElement)
-                                          //     .toList()
-                                          //     .where((test) =>
-                                          //         test.index == index);
-                                          // localImeges
-                                          //     .removeAt(imageItem.first.index);
-                                          // editors.removeWhere(
-                                          //     (test) => test.index == index);
-                                          // l.log(
-                                          //     imageItem.toString() +
-                                          //         "====" +
-                                          //         path,
-                                          //     name: "dododo");
-                                        }),
+                                    onTap: () {
+                                      // var imageItem = editors
+                                      //     .map((toElement) => toElement)
+                                      //     .toList()
+                                      //     .where((test) => test.index == index);
+                                      if (i.index != choice) {
+                                        localImeges.removeAt(i.index);
+                                        keys.removeAt(i.index);
+                                        editors.removeWhere(
+                                            (test) => test.index == i.index);
+                                        // l.log(
+                                        //     imageItem. + "====" + path,
+                                        //     name: "dododo");
+                                        paths = {};
+                                        setState(() {});
+                                      }
+                                    },
                                     child: const CircleAvatar(
                                       radius: 7.5,
                                       backgroundColor: Colors.black,
@@ -595,7 +624,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                         setState(() {});
                       }
                     },
-                    child: const Icon(CupertinoIcons.photo)),
+                    child: const Icon(CupertinoIcons.photo,size: 32,)),
                 Expanded(
                   // width: 313,
                   // color: Colors.transparent,
