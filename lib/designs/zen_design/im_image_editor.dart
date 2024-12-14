@@ -108,6 +108,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     super.dispose();
   }
 
+  int done = 0;
   Future<void> preperImages(bool shouldCompress) async {
     localImeges.clear();
     editors.clear();
@@ -118,6 +119,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
         String newImagePath = shouldCompress
             ? await compressImage(imagePath, context)
             : paths[i]!;
+        done++;
         paths[i] = newImagePath;
         localImeges[i] = newImagePath;
         keys[i] = keys[i] ?? GlobalKey<ProImageEditorState>();
@@ -134,6 +136,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
             keys[i]!,
             paths[i]);
         editors.add(item);
+        setState(() {});
       }
       setState(() {});
     }
@@ -150,9 +153,33 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                 child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 0.9,
+                SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: Stack(
+                    // fit: StackFit.expand,
+                    children: [
+                      Center(
+                          child: Text(
+                        '${(done * 100 / currentImages.length).round()}%',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 10),
+                      )),
+                      Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          value: (done * 100 / currentImages.length) / 100,
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1,
+                          color: Colors.white,
+                          // value: (done * 100 / currentImages.length) / 100,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(
                   width: 10,
@@ -173,7 +200,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       children: [
         Container(
           color: Colors.black,
-          child: Center(
+          child: const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -431,7 +458,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
 
   void _scrollToItem(int index) async {
     final offset = index * 40.0;
-    await Future.delayed(Duration(milliseconds: 100))
+    await Future.delayed(const Duration(milliseconds: 100))
         .then((onValue) => _bottomBarScrollCtrl.animateTo(
               offset,
               duration: const Duration(seconds: 1),

@@ -75,7 +75,7 @@ Future<String> compressImage(String path, BuildContext context) async {
     path,outputPath,
     minHeight: 1920,
     minWidth: 1080,
-    quality: 90,
+    // quality: 100,
   );
   // File(outputPath).writeAsBytesSync(result);
   final dataSize = await getFileSize(path, 1);

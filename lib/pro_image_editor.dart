@@ -54,3 +54,4 @@ export 'widgets/animated/fade_in_up.dart';
 export 'widgets/flat_icon_text_button.dart';
 export 'widgets/overlays/loading_dialog/loading_dialog.dart';
 export 'widgets/platform_circular_progress_indicator.dart';
+export 'designs/zen_design/utils/pick_media.dart';
