@@ -951,7 +951,7 @@ class _ImageEditorState extends State<ProfileImageEditor> {
                                 GestureDetector(
                                   onTap: editor.openCropRotateEditor,
                                   child: Icon(
-                                    Icons.crop,
+                                      Icons.crop_rotate_rounded,
                                     size: iconSize,
                                     color: Colors.white,
                                   ),

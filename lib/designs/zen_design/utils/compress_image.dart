@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 // import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
@@ -24,35 +25,35 @@ Future<String> compressImage(String path, BuildContext context) async {
   // final command =
   //     '-i $path -vf $scale -qscale:v 90 -compression_level 4 $outputPath';
 //-preset photo / -qscale:v 90
-  try {
-    await FFmpegKit.execute(resizeCommand).then(
-      (session) async {
-        // session.
-        final returnCode = await session.getReturnCode();
-        // session.
+  // try {
+  //   await FFmpegKit.execute(resizeCommand).then(
+  //     (session) async {
+  //       // session.
+  //       final returnCode = await session.getReturnCode();
+  //       // session.
 
-        if (ReturnCode.isSuccess(returnCode)) {
-          // await Future.delayed(Duration(seconds: 1)).then((onValue) {
-          // log("done", name: "bashardinho");
-          compressedWithFfmpeg = true;
-          // });
-        } else if (ReturnCode.isCancel(returnCode)) {
-          compressedWithFfmpeg = false;
-          // CANCEL
-          // log("CANCEL", name: "bashardinho");
-        } else {
-          // log("ERROR", name: "bashardinho");
-          compressedWithFfmpeg = false;
+  //       if (ReturnCode.isSuccess(returnCode)) {
+  //         // await Future.delayed(Duration(seconds: 1)).then((onValue) {
+  //         // log("done", name: "bashardinho");
+  //         compressedWithFfmpeg = true;
+  //         // });
+  //       } else if (ReturnCode.isCancel(returnCode)) {
+  //         compressedWithFfmpeg = false;
+  //         // CANCEL
+  //         // log("CANCEL", name: "bashardinho");
+  //       } else {
+  //         // log("ERROR", name: "bashardinho");
+  //         compressedWithFfmpeg = false;
 
-          // ERROR
-        }
-      },
-    );
-  } catch (e) {
-    // log(e.toString(), name: "bashardinho");
-    compressedWithFfmpeg = false;
-    // log(e.toString());
-  }
+  //         // ERROR
+  //       }
+  //     },
+  //   );
+  // } catch (e) {
+  //   // log(e.toString(), name: "bashardinho");
+  //   compressedWithFfmpeg = false;
+  //   // log(e.toString());
+  // }
   // WidgetsBinding.instance.addPostFrameCallback((_) async {
   //   await Future.delayed(Duration.zero).then((onValue) async {
   //     // File file = File(webpPath);
@@ -62,22 +63,31 @@ Future<String> compressImage(String path, BuildContext context) async {
 
   // file.writeAsBytesSync(result, flush: true);
 
-  if (compressedWithFfmpeg) {
-    // file.writeAsBytesSync(File(outputPath).readAsBytesSync());
-    // log(await getFileSize(outputPath, 1), name: "bashardinho");
-    // log("image there", name: "bashardinho");
-    return outputPath;
-  }
+  // if (compressedWithFfmpeg) {
+  //   // file.writeAsBytesSync(File(outputPath).readAsBytesSync());
+  //   // log(await getFileSize(outputPath, 1), name: "bashardinho");
+  //   // log("image there", name: "bashardinho");
+  //   return outputPath;
+  // }
   // log("image not there", name: "bashardinho");
-  var result = await FlutterImageCompress.compressWithList(
-    File(path).readAsBytesSync(),
+  var result = await FlutterImageCompress.compressAndGetFile(
+    format: CompressFormat.webp,
+    path,outputPath,
     minHeight: 1920,
     minWidth: 1080,
-    quality: 70,
+    quality: 90,
   );
-  File(outputPath).writeAsBytesSync(result);
-  // log(await getFileSize(outputPath, 1), name: "bashardinho");
-  return outputPath;
+  // File(outputPath).writeAsBytesSync(result);
+  final dataSize = await getFileSize(path, 1);
+  final dataSizeAfterCompress = await getFileSize(outputPath, 1);
+  log(dataSize[0].toString() + " " + dataSize[1].toString(),
+      name: "bashardinho");
+  log(
+      dataSizeAfterCompress[0].toString() +
+          " " +
+          dataSizeAfterCompress[1].toString(),
+      name: "bashardinho");
+  return result!.path;
 }
 
 Future<Map<String, int>?> getImageDimensions(String path) async {
@@ -107,18 +117,7 @@ Future<String?> resizeImage(String path) async {
   final dimensions = await getImageDimensions(path);
   final width = dimensions!['width']!;
   final height = dimensions['height']!;
-  // String scale;
 
-  // if (width > height) {
-  //   // Landscape
-  //   return "scale=1920:-1";
-  // } else if (height > width) {
-  //   // Portrait
-  //   return "scale=-1:1080";
-  // } else {
-  //   // Square
-  //   return "scale=1080:-1";
-  // }
   if (width < height) {
     // Portrait
     if (width > 1080) {
@@ -141,18 +140,13 @@ Future<String?> resizeImage(String path) async {
       return null; // No scaling needed
     }
   }
-  // final command = "-i $inputPath -vf \"$scale\" $outputPath";
-  // await FFmpegKit.execute(command);
-  // print("Resizing completed!");
 }
 
-Future<String> getFileSize(String filepath, int decimals) async {
+Future<List> getFileSize(String filepath, int decimals) async {
   var file = File(filepath);
   int bytes = await file.length();
-  if (bytes <= 0) return '0 B';
+  if (bytes <= 0) return [0, 'B'];
   const suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   var i = (math.log(bytes) / math.log(1024)).floor();
-  return ((bytes / math.pow(1024, i)).toStringAsFixed(decimals)) +
-      ' ' +
-      suffixes[i];
+  return [((bytes / math.pow(1024, i)).toStringAsFixed(decimals)), suffixes[i]];
 }

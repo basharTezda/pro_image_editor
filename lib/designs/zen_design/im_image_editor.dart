@@ -86,11 +86,14 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   int choice = 0;
   BoxConstraints? constraint;
   List<ImageItem> editors = [];
-  List<String> localImeges = [];
-  List<GlobalKey<ProImageEditorState>> keys = [];
+  List<String> currentImages = [];
+  Map<int, String> localImeges = {};
+  Map<int, GlobalKey<ProImageEditorState>> keys = {};
+  bool isImagesCopressed = false;
   @override
   void initState() {
-    preperImages();
+    currentImages = widget.images;
+    preperImages(true);
     _bottomBarScrollCtrl = ScrollController();
     _paintingBottomBarScrollCtrl = ScrollController();
     _cropBottomBarScrollCtrl = ScrollController();
@@ -105,27 +108,41 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     super.dispose();
   }
 
-  void preperImages() async {
-    for (String i in widget.images) {
-      if (lookupMimeType(i)![0] == 'i') {
-        String imagePath = await compressImage(i, context);
-        localImeges.add(imagePath);
-        keys.add(GlobalKey<ProImageEditorState>());
+  Future<void> preperImages(bool shouldCompress) async {
+    localImeges.clear();
+    editors.clear();
+    // keys.clear();
+    for (int i = 0; i < currentImages.length; i++) {
+      final imagePath = currentImages[i];
+      if (lookupMimeType(imagePath)![0] == 'i') {
+        String newImagePath = shouldCompress
+            ? await compressImage(imagePath, context)
+            : paths[i]!;
+        paths[i] = newImagePath;
+        localImeges[i] = newImagePath;
+        keys[i] = keys[i] ?? GlobalKey<ProImageEditorState>();
+        ImageItem item = ImageItem(
+            paths[i] ?? localImeges[i]!,
+            i,
+            Visibility(
+              visible: choice == i,
+              child: LayoutBuilder(builder: (context, constraints) {
+                return edittor(
+                    paths[i] ?? localImeges[i]!, constraints, i, keys[i]!);
+              }),
+            ),
+            keys[i]!,
+            paths[i]);
+        editors.add(item);
       }
+      setState(() {});
     }
-
-    for (int i = 0; i < localImeges.length; i++) {
-      // if (paths[i] == null) {
-      // await preCache(i);
-      // _preCache();
-      // }
-    }
-    setState(() {});
+    isImagesCopressed = true;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (localImeges.isEmpty) {
+    if (!isImagesCopressed) {
       return Scaffold(
         body: Container(
             color: Colors.black,
@@ -148,31 +165,26 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
             ))),
       );
     }
-    editors.clear();
-    for (int i = 0; i < localImeges.length; i++) {
-      if (paths[i] == null) {
-        preCache(i);
-        // _preCache();
-      }
-      ImageItem item = ImageItem(
-          paths[i] ?? localImeges[i],
-          i,
-          Visibility(
-            visible: choice == i,
-            child: LayoutBuilder(builder: (context, constraints) {
-              return edittor(
-                  paths[i] ?? localImeges[i], constraints, i, keys[i]);
-            }),
-          ),
-          keys[i],
-          paths[i]);
-      editors.add(item);
-    }
-    if (localImeges.isEmpty) {
-      Navigator.of(context).pop();
-    }
+    preperImages(false);
+    // if (localImeges.isEmpty) {
+    //   Navigator.of(context).pop();
+    // }
     return Stack(
       children: [
+        Container(
+          color: Colors.black,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Text(keys.length.toString()),
+                // Text(editors.length.toString()),
+                // Text(localImeges.length.toString()),
+                // Text(paths.length.toString())
+              ],
+            ),
+          ),
+        ),
         for (ImageItem i in editors) i.editor,
         Positioned(
             top: 50,
@@ -181,6 +193,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                 icon: const Icon(
                   Icons.close,
                   color: Colors.white,
+                  size: 32,
                 )))
       ],
     );
@@ -195,6 +208,9 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
         onImageEditingComplete: (byt) => _onEditingDone(byt),
       ),
       configs: ProImageEditorConfigs(
+        // stateHistoryConfigs: key2.currentState != null
+        //     ? key2.currentState!.stateHistoryConfigs
+        //     : StateHistoryConfigs(),
         imageEditorTheme: const ImageEditorTheme(
           background: Color(0xFF000000),
           bottomBarBackgroundColor: Color(0xFF000000),
@@ -413,13 +429,14 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     );
   }
 
-  void _scrollToItem(int index) {
-    final offset = index * 60.0;
-    _bottomBarScrollCtrl.animateTo(
-      offset,
-      duration: const Duration(seconds: 1),
-      curve: Curves.easeInOut,
-    );
+  void _scrollToItem(int index) async {
+    final offset = index * 40.0;
+    await Future.delayed(Duration(milliseconds: 100))
+        .then((onValue) => _bottomBarScrollCtrl.animateTo(
+              offset,
+              duration: const Duration(seconds: 1),
+              curve: Curves.easeInOut,
+            ));
   }
 
   double iconSize = 18;
@@ -433,165 +450,75 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (editors.length > 1)
-            SingleChildScrollView(
-              controller: _bottomBarScrollCtrl,
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  for (var i in editors)
-                    GestureDetector(
-                      onTap: () async {
-                        await preCache(i.index);
-                        await _preCache();
-                        setState(() {
-                          choice = i.index;
-                        });
-                        // _scrollToItem(choice);
-                      },
-                      child: SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: SizedBox(
-                                width: 50,
-                                height: 50,
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                      color: i.index == choice
-                                          ? Colors.white
-                                          : null,
-                                      borderRadius: BorderRadius.circular(5.0)),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(5.0),
-                                    child: SizedBox.fromSize(
-                                      size: const Size.fromRadius(32),
-                                      child: Image(
-                                          fit: BoxFit.cover,
-                                          image: FileImage(File(i.path))),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                                top: 0,
-                                right: 0,
-                                child: GestureDetector(
-                                    onTap: () {
-                                      // var imageItem = editors
-                                      //     .map((toElement) => toElement)
-                                      //     .toList()
-                                      //     .where((test) => test.index == index);
-                                      if (i.index != choice) {
-                                        localImeges.removeAt(i.index);
-                                        keys.removeAt(i.index);
-                                        editors.removeWhere(
-                                            (test) => test.index == i.index);
-                                        // l.log(
-                                        //     imageItem. + "====" + path,
-                                        //     name: "dododo");
-                                        paths = {};
-                                        setState(() {});
-                                      }
-                                    },
-                                    child: const CircleAvatar(
-                                      radius: 7.5,
-                                      backgroundColor: Colors.black,
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.cancel,
-                                          color: Colors.white,
-                                          size: 15,
-                                        ),
-                                      ),
-                                    )))
-                          ],
-                        ),
-                      ),
-                    )
-                ],
-              ),
+          if (editors.length > 1) imagesRow(),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: min(constraints.maxWidth, 500),
+              maxWidth: 500,
             ),
-          SingleChildScrollView(
-            controller: _bottomBarScrollCtrl,
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: min(constraints.maxWidth, 500),
-                maxWidth: 500,
-              ),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    GestureDetector(
-                      onTap: editor.openPaintingEditor,
-                      child: Icon(
-                        Icons.edit_outlined,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: editor.openPaintingEditor,
+                    child: Icon(
+                      Icons.edit_outlined,
+                      size: iconSize,
+                      color: Colors.white,
                     ),
-                    GestureDetector(
-                      onTap: editor.openTextEditor,
-                      child: Icon(
-                        Icons.text_fields_rounded,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
+                  ),
+                  GestureDetector(
+                    onTap: editor.openTextEditor,
+                    child: Icon(
+                      Icons.text_fields_rounded,
+                      size: iconSize,
+                      color: Colors.white,
                     ),
-                    GestureDetector(
-                      onTap: editor.openCropRotateEditor,
-                      child: Icon(
-                        Icons.crop_rotate_rounded,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
+                  ),
+                  GestureDetector(
+                    onTap: editor.openCropRotateEditor,
+                    child: Icon(
+                      Icons.crop_rotate_rounded,
+                      size: iconSize,
+                      color: Colors.white,
                     ),
-                    GestureDetector(
-                      onTap: editor.openTuneEditor,
-                      child: Icon(
-                        Icons.tune,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
+                  ),
+                  GestureDetector(
+                    onTap: editor.openTuneEditor,
+                    child: Icon(
+                      Icons.tune,
+                      size: iconSize,
+                      color: Colors.white,
                     ),
-                    GestureDetector(
-                      onTap: editor.openFilterEditor,
-                      child: Icon(
-                        Icons.filter,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
+                  ),
+                  GestureDetector(
+                    onTap: editor.openFilterEditor,
+                    child: Icon(
+                      Icons.filter,
+                      size: iconSize,
+                      color: Colors.white,
                     ),
-                    GestureDetector(
-                      onTap: editor.openBlurEditor,
-                      child: Icon(
-                        Icons.lens_blur_sharp,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
+                  ),
+                  GestureDetector(
+                    onTap: editor.openBlurEditor,
+                    child: Icon(
+                      Icons.lens_blur_sharp,
+                      size: iconSize,
+                      color: Colors.white,
                     ),
-                    GestureDetector(
-                      onTap: editor.openEmojiEditor,
-                      child: Icon(
-                        Icons.sentiment_satisfied_alt_rounded,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
+                  ),
+                  GestureDetector(
+                    onTap: editor.openEmojiEditor,
+                    child: Icon(
+                      Icons.sentiment_satisfied_alt_rounded,
+                      size: iconSize,
+                      color: Colors.white,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -609,7 +536,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                       for (int i = 0; i < localImeges.length; i++) {
                         if (paths[i] == null) {
                           await _preCache();
-                          await preCache(i);
+                          // await preCache(i);
                         }
                       }
                       final List<XFile> images =
@@ -617,14 +544,21 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
 
                       if (images.isNotEmpty) {
                         for (var i in images) {
-                          keys.add(GlobalKey<ProImageEditorState>());
-                          localImeges.add(i.path);
+                          String imagePath =
+                              await compressImage(i.path, context);
+                          currentImages.add(imagePath);
+                          l.log(paths.length.toString());
+                          paths[paths.length] = imagePath;
                         }
-                        l.log(localImeges.length.toString());
+                        // preperImages(false);
+
                         setState(() {});
                       }
                     },
-                    child: const Icon(CupertinoIcons.photo,size: 32,)),
+                    child: const Icon(
+                      CupertinoIcons.photo,
+                      size: 32,
+                    )),
                 Expanded(
                   // width: 313,
                   // color: Colors.transparent,
@@ -762,17 +696,91 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     paths[editors[choice].index] = file.path;
   }
 
-  Future<void> preCache(int i) async {
-    final directory = await getApplicationDocumentsDirectory();
-    var file = File('${directory.path}/image_${DateTime.now()}.webp');
-    Uint8List img;
-    if (editors[i].key.currentState != null) {
-      img = await editors[i].key.currentState!.captureEditorImage();
-    } else {
-      img = File(editors[i].path).readAsBytesSync();
-    }
-    file.writeAsBytesSync(img);
-    paths[editors[i].index] = file.path;
+  Widget imagesRow() {
+    return SingleChildScrollView(
+      controller: _bottomBarScrollCtrl,
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (var i in editors)
+            GestureDetector(
+              onTap: () async {
+                await _preCache();
+                choice = i.index;
+                setState(() {});
+                _scrollToItem(choice);
+              },
+              child: SizedBox(
+                width: 60,
+                height: 60,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                              color: i.index == choice ? Colors.white : null,
+                              borderRadius: BorderRadius.circular(5.0)),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5.0),
+                            child: SizedBox.fromSize(
+                              size: const Size.fromRadius(32),
+                              child: Image(
+                                  fit: BoxFit.cover,
+                                  image: FileImage(File(i.path))),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                        top: 0,
+                        right: 0,
+                        child: GestureDetector(
+                            onTap: () async {
+                              choice = 0;
+                              // var imageItem = editors
+                              //     .map((toElement) => toElement)
+                              //     .toList()
+                              //     .where((test) => test.index == index);
+                              // currentImages.reversed.toList();
+                              currentImages.removeAt(i.index);
+                              keys.remove(i.index);
+                              paths.remove(i.index);
+                              l.log(keys[i.index].toString());
+                              await preperImages(true);
+                              // l.log(
+                              //     imageItem. + "====" + path,
+                              //     name: "dododo");
+                              // paths = {};
+
+                              setState(() {});
+                            },
+                            child: const CircleAvatar(
+                              radius: 7.5,
+                              backgroundColor: Colors.black,
+                              child: Center(
+                                child: Icon(
+                                  Icons.cancel,
+                                  color: Colors.white,
+                                  size: 15,
+                                ),
+                              ),
+                            )))
+                  ],
+                ),
+              ),
+            )
+        ],
+      ),
+    );
   }
 }
 
