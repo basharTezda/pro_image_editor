@@ -84,6 +84,8 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
   ];
   Map<int, String> paths = {};
   int choice = 0;
+  double iconSize = 18;
+  int done = 0;
   BoxConstraints? constraint;
   List<ImageItem> editors = [];
   List<String> currentImages = [];
@@ -108,7 +110,6 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
     super.dispose();
   }
 
-  int done = 0;
   Future<void> preperImages(bool shouldCompress) async {
     localImeges.clear();
     editors.clear();
@@ -466,18 +467,27 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
             ));
   }
 
-  double iconSize = 18;
   Widget _bottomNavigationBar(ProImageEditorState editor, Key key,
       BoxConstraints constraints, int index, String path) {
     return BottomAppBar(
       notchMargin: 1,
-      height: kBottomNavigationBarHeight + (localImeges.length > 1 ? 100 : 50),
+      height: kBottomNavigationBarHeight +
+          ((editor.textEditor.currentContext == null ||
+                      (editor.textEditor.currentContext != null &&
+                          !editor.textEditor.currentContext!.mounted)) &&
+                  localImeges.length > 1
+              ? 100
+              : 50),
       color: Colors.black,
       padding: EdgeInsets.zero,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (editors.length > 1) imagesRow(),
+          if (editors.length > 1 &&
+              (editor.textEditor.currentContext == null ||
+                  (editor.textEditor.currentContext != null &&
+                      !editor.textEditor.currentContext!.mounted)))
+            imagesRow(),
           ConstrainedBox(
             constraints: BoxConstraints(
               minWidth: min(constraints.maxWidth, 500),
@@ -781,7 +791,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                               keys.remove(i.index);
                               paths.remove(i.index);
                               l.log(paths.length.toString());
-                              currentImages=paths.values.toList();
+                              currentImages = paths.values.toList();
                               keys.clear();
                               paths.clear();
                               await preperImages(true);
