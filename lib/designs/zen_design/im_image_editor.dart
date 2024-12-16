@@ -171,7 +171,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                           value: (done * 100 / currentImages.length) / 100,
                         ),
                       ),
-                      Positioned.fill(
+                      const Positioned.fill(
                         child: CircularProgressIndicator(
                           strokeWidth: 1,
                           color: Colors.white,
@@ -737,7 +737,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                 await _preCache();
                 choice = i.index;
                 setState(() {});
-                _scrollToItem(choice);
+                // _scrollToItem(choice);
               },
               child: SizedBox(
                 width: 60,
@@ -778,10 +778,12 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                               //     .toList()
                               //     .where((test) => test.index == index);
                               // currentImages.reversed.toList();
-                              currentImages.removeAt(i.index);
                               keys.remove(i.index);
                               paths.remove(i.index);
-                              l.log(keys[i.index].toString());
+                              l.log(paths.length.toString());
+                              currentImages=paths.values.toList();
+                              keys.clear();
+                              paths.clear();
                               await preperImages(true);
                               // l.log(
                               //     imageItem. + "====" + path,

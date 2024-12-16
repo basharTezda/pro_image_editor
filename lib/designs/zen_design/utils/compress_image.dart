@@ -12,15 +12,15 @@ import 'package:path_provider/path_provider.dart';
 
 Future<String> compressImage(String path, BuildContext context) async {
   bool compressedWithFfmpeg = false;
-  final directory = await getTemporaryDirectory();
-  final outputPath =
-      '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.webp';
-  // final webpPath =
+  // final directory = await getTemporaryDirectory();
+  // final outputPath =
   //     '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.webp';
-  final scale = await resizeImage(path);
-  final resizeCommand = scale != null
-      ? '-i $path -vf \"$scale\" -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath'
-      : '-i $path -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath';
+  // // final webpPath =
+  // //     '${directory.path}/compressed_image${DateTime.now().toIso8601String()}.webp';
+  // final scale = await resizeImage(path);
+  // final resizeCommand = scale != null
+  //     ? '-i $path -vf \"$scale\" -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath'
+  //     : '-i $path -c:v libwebp -qscale:v 90 -preset photo -compression_level 4 $outputPath';
 
   // final command =
   //     '-i $path -vf $scale -qscale:v 90 -compression_level 4 $outputPath';
@@ -70,24 +70,24 @@ Future<String> compressImage(String path, BuildContext context) async {
   //   return outputPath;
   // }
   // log("image not there", name: "bashardinho");
-  var result = await FlutterImageCompress.compressAndGetFile(
-    format: CompressFormat.webp,
-    path,outputPath,
-    minHeight: 1920,
-    minWidth: 1080,
-    // quality: 100,
-  );
-  // File(outputPath).writeAsBytesSync(result);
-  final dataSize = await getFileSize(path, 1);
-  final dataSizeAfterCompress = await getFileSize(outputPath, 1);
-  log(dataSize[0].toString() + " " + dataSize[1].toString(),
-      name: "bashardinho");
-  log(
-      dataSizeAfterCompress[0].toString() +
-          " " +
-          dataSizeAfterCompress[1].toString(),
-      name: "bashardinho");
-  return result!.path;
+  // var result = await FlutterImageCompress.compressAndGetFile(
+  //   format: CompressFormat.webp,
+  //   path,outputPath,
+  //   minHeight: 1920,
+  //   minWidth: 1080,
+  //   // quality: 100,
+  // );
+  // // File(outputPath).writeAsBytesSync(result);
+  // final dataSize = await getFileSize(path, 1);
+  // final dataSizeAfterCompress = await getFileSize(outputPath, 1);
+  // log(dataSize[0].toString() + " " + dataSize[1].toString(),
+  //     name: "bashardinho");
+  // log(
+  //     dataSizeAfterCompress[0].toString() +
+  //         " " +
+  //         dataSizeAfterCompress[1].toString(),
+  //     name: "bashardinho");
+  return path;
 }
 
 Future<Map<String, int>?> getImageDimensions(String path) async {
