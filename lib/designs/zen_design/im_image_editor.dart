@@ -788,6 +788,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                               //     .toList()
                               //     .where((test) => test.index == index);
                               // currentImages.reversed.toList();
+                             await _preCache();
                               keys.remove(i.index);
                               paths.remove(i.index);
                               l.log(paths.length.toString());
