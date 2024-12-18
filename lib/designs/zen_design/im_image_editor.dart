@@ -576,19 +576,28 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                           // await preCache(i);
                         }
                       }
-                      final List<XFile> images =
-                          await ImagePicker().pickMultiImage();
+                      final List<String> images = await pickMediaForEditor(
+                          oneImage: widget.forCommentsUse ? true : false);
 
                       if (images.isNotEmpty) {
-                        for (var i in images) {
-                          String imagePath =
-                              await compressImage(i.path, context);
-                          currentImages.add(imagePath);
-                          l.log(paths.length.toString());
-                          paths[paths.length] = imagePath;
+                        if (!widget.forCommentsUse) {
+                          for (var i in images) {
+                            String imagePath = await compressImage(i, context);
+                            currentImages.add(imagePath);
+                            l.log(paths.length.toString());
+                            paths[paths.length] = imagePath;
+                          }
+                          setState(() {});
+                          return;
                         }
-                        // preperImages(false);
-
+                        String imagePath =
+                            await compressImage(images.first, context);
+                        currentImages.clear();
+                        paths.clear();
+                        keys.clear();
+                        editors.clear();
+                        currentImages.add(imagePath);
+                        await preperImages(true);
                         setState(() {});
                       }
                     },
@@ -788,7 +797,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
                               //     .toList()
                               //     .where((test) => test.index == index);
                               // currentImages.reversed.toList();
-                             await _preCache();
+                              await _preCache();
                               keys.remove(i.index);
                               paths.remove(i.index);
                               l.log(paths.length.toString());
