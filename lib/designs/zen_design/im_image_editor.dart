@@ -559,153 +559,156 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
               ),
             ),
           ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: 36,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                const SizedBox(
-                  width: 10,
-                ),
-                GestureDetector(
-                    onTap: () async {
-                      for (int i = 0; i < localImeges.length; i++) {
-                        if (paths[i] == null) {
-                          await _preCache();
-                          // await preCache(i);
-                        }
-                      }
-                      final List<String> images = await pickMediaForEditor(
-                          oneImage: widget.forCommentsUse ? true : false);
-
-                      if (images.isNotEmpty) {
-                        if (!widget.forCommentsUse) {
-                          for (var i in images) {
-                            String imagePath = await compressImage(i, context);
-                            currentImages.add(imagePath);
-                            l.log(paths.length.toString());
-                            paths[paths.length] = imagePath;
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 36,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  GestureDetector(
+                      onTap: () async {
+                        for (int i = 0; i < localImeges.length; i++) {
+                          if (paths[i] == null) {
+                            await _preCache();
+                            // await preCache(i);
                           }
-                          setState(() {});
-                          return;
                         }
-                        String imagePath =
-                            await compressImage(images.first, context);
-                        currentImages.clear();
-                        paths.clear();
-                        keys.clear();
-                        editors.clear();
-                        currentImages.add(imagePath);
-                        await preperImages(true);
-                        setState(() {});
-                      }
-                    },
-                    child: const Icon(
-                      CupertinoIcons.photo,
-                      size: 32,
-                    )),
-                Expanded(
-                  // width: 313,
-                  // color: Colors.transparent,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0, right: 8),
-                    child: TextFormField(
-                      controller: widget.textEditingController,
-                      keyboardType: TextInputType.multiline,
-                      textCapitalization: TextCapitalization.sentences,
-                      autocorrect: true,
-                      minLines: 1,
-                      maxLines: 10,
-                      cursorHeight: 16.0,
-                      cursorWidth: 2.0,
-                      style: const TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500),
-                      onChanged: (text) {},
-                      decoration: InputDecoration(
-                        suffixIcon: const Icon(
-                          Icons.sentiment_satisfied_alt_rounded,
-                          color: Colors.white,
-                        ),
-                        hintText: widget.textEditingText,
-                        hintStyle:
-                            const TextStyle(color: Colors.white, fontSize: 14),
-                        contentPadding: const EdgeInsets.only(
-                          top: 0,
-                          bottom: 0,
-                          left: 12.0,
-                          right: 38.0,
-                        ),
-                        constraints: const BoxConstraints(),
-                        filled: true,
-                        fillColor: Colors.grey.withOpacity(0.1),
-                        labelStyle: const TextStyle(color: Colors.black),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(
-                            width: .5,
-                            color: Colors.grey,
+                        final List<String> images = await pickMediaForEditor(
+                            oneImage: widget.forCommentsUse ? true : false);
+            
+                        if (images.isNotEmpty) {
+                          if (!widget.forCommentsUse) {
+                            for (var i in images) {
+                              String imagePath = await compressImage(i, context);
+                              currentImages.add(imagePath);
+                              l.log(paths.length.toString());
+                              paths[paths.length] = imagePath;
+                            }
+                            setState(() {});
+                            return;
+                          }
+                          String imagePath =
+                              await compressImage(images.first, context);
+                          currentImages.clear();
+                          paths.clear();
+                          keys.clear();
+                          editors.clear();
+                          currentImages.add(imagePath);
+                          await preperImages(true);
+                          setState(() {});
+                        }
+                      },
+                      child: const Icon(
+                        CupertinoIcons.photo,
+                        size: 32,
+                      )),
+                  Expanded(
+                    // width: 313,
+                    // color: Colors.transparent,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8),
+                      child: TextFormField(
+                        controller: widget.textEditingController,
+                        keyboardType: TextInputType.multiline,
+                        textCapitalization: TextCapitalization.sentences,
+                        autocorrect: true,
+                        minLines: 1,
+                        maxLines: 10,
+                        cursorHeight: 16.0,
+                        cursorWidth: 2.0,
+                        style: const TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500),
+                        onChanged: (text) {},
+                        decoration: InputDecoration(
+                          suffixIcon: const Icon(
+                            Icons.sentiment_satisfied_alt_rounded,
+                            color: Colors.white,
                           ),
-                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                        ),
-                        focusedBorder: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                          borderSide: BorderSide.none,
+                          hintText: widget.textEditingText,
+                          hintStyle:
+                              const TextStyle(color: Colors.white, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 0,
+                            left: 12.0,
+                            right: 38.0,
+                          ),
+                          constraints: const BoxConstraints(),
+                          filled: true,
+                          fillColor: Colors.grey.withOpacity(0.1),
+                          labelStyle: const TextStyle(color: Colors.black),
+                          enabledBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(
+                              width: .5,
+                              color: Colors.grey,
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                          ),
+                          focusedBorder: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  width: 36,
-                  height: 36,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: const BoxDecoration(),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Colors.amber,
-                          child: IconButton(
-                            iconSize: 20,
-                            onPressed: () async {
-                              List<String> list = [];
-                              for (ImageItem i in editors) {
-                                String? path = paths[i.index];
-
-                                final directory =
-                                    await getApplicationDocumentsDirectory();
-                                var file = File(
-                                    '${directory.path}/image_${DateTime.now()}.webp');
-                                var img = i.key.currentState != null
-                                    ? await i.key.currentState!
-                                        .captureEditorImage()
-                                    : File(i.path).readAsBytesSync();
-                                file.writeAsBytesSync(img);
-                                path = file.path;
-
-                                list.add(path);
-                              }
-                              widget.onDone.call(list);
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(Icons.send),
-                            color: Colors.white,
+                  Container(
+                    width: 36,
+                    height: 36,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.amber,
+                            child: IconButton(
+                              iconSize: 20,
+                              onPressed: () async {
+                                List<String> list = [];
+                                for (ImageItem i in editors) {
+                                  String? path = paths[i.index];
+            
+                                  final directory =
+                                      await getApplicationDocumentsDirectory();
+                                  var file = File(
+                                      '${directory.path}/image_${DateTime.now()}.webp');
+                                  var img = i.key.currentState != null
+                                      ? await i.key.currentState!
+                                          .captureEditorImage()
+                                      : File(i.path).readAsBytesSync();
+                                  file.writeAsBytesSync(img);
+                                  path = file.path;
+            
+                                  list.add(path);
+                                }
+                                widget.onDone.call(list);
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(Icons.send),
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-              ],
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
