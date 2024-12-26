@@ -24,7 +24,7 @@ Future<String> downScale(
 }
 
 Future<String> compressImageWithFfmpeg(
-    String path, BuildContext context) async {
+    String path) async {
   bool compressedWithFfmpeg = false;
   final directory = await getTemporaryDirectory();
   final outputPath =
