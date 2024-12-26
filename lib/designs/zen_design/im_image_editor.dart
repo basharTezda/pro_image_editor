@@ -560,7 +560,7 @@ class _WhatsAppExampleState extends State<ImImageEditor> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+            padding: const EdgeInsets.only(bottom: 6.0),
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 36,
