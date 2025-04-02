@@ -1,11 +1,7 @@
 name: pro_image_editor
-description: "A Flutter image editor: Seamlessly enhance your images with user-friendly editing features."
 version: 6.1.6
-homepage: https://github.com/hm21/pro_image_editor/
-repository: https://github.com/hm21/pro_image_editor/
-issue_tracker: https://github.com/hm21/pro_image_editor/issues/
-documentation: https://github.com/hm21/pro_image_editor/
 
+publish_to: none
 
 topics:
   - image-editor
@@ -48,7 +44,10 @@ dependencies:
   google_fonts: ^6.2.1
   image_picker: ^1.1.2
   flutter_colorpicker: ^1.1.0
-  ffmpeg_kit_flutter_full_gpl: ^6.0.3
+  ffmpeg_kit_flutter_full_gpl:
+    git:
+      url: https://github.com/tezdacom/EXT_ffmpeg.git
+      ref: main
 
 dev_dependencies:
   flutter_test:
